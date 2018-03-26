@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">病理初级</string>
+    <string name="title_practice">练习</string>
+    <string name="title_exam">考试</string>
+    <string name="title_mine">我的</string>
+    <string name="order">顺序</string>
+    <string name="random">随机</string>
+    <string name="download_database">下载数据</string>
+    <string name="upload_database">上传数据</string>
+    <string name="sync_database">同步数据</string>
+    <string name="splash_text">启动中</string>
+</resources>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <include layout="@layout/base_toolbar"/>
+
+    <ScrollView
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_weight="1">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+            <TextView
+                    android:id="@+id/tv_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:textSize="20sp"
+                    android:textColor="@android:color/black"
+                    android:text="这是题目"/>
+
+            <RadioGroup
+                    android:id="@+id/rg_option"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
+
+                <RadioButton
+                        android:id="@+id/rb_a"
+                        android:layout_width="match_parent"
+                        android:paddingTop="15dp"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingBottom="15dp"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textColor="@drawable/rb_textcolor_selector"
+                        android:text="A"/>
+
+                <RadioButton
+                        android:id="@+id/rb_b"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="15dp"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingBottom="15dp"
+                        android:textSize="18sp"
+                        android:textColor="@drawable/rb_textcolor_selector"
+                        android:text="B"/>
+
+                <RadioButton
+                        android:id="@+id/rb_c"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="15dp"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingBottom="15dp"
+                        android:textSize="18sp"
+                        android:textColor="@drawable/rb_textcolor_selector"
+                        android:text="C"/>
+
+                <RadioButton
+                        android:id="@+id/rb_d"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="15dp"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingBottom="15dp"
+                        android:textSize="18sp"
+                        android:textColor="@drawable/rb_textcolor_selector"
+                        android:text="D"/>
+
+                <RadioButton
+                        android:id="@+id/rb_e"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="15dp"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingBottom="15dp"
+                        android:textSize="18sp"
+                        android:textColor="@drawable/rb_textcolor_selector"
+                        android:text="E"/>
+            </RadioGroup>
+
+            <TextView
+                    android:id="@+id/tv_commons"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:textSize="18sp"/>
+
+            <LinearLayout
+                    android:id="@+id/ly_result_analysis"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                <TextView
+                        android:id="@+id/tv_anser"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:textColor="@android:color/black"
+                        android:textSize="18sp"
+                        android:text="答案 B"/>
+
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center"
+                        android:text="试题解析"/>
+
+                <TextView
+                        android:id="@+id/tv_analysis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:textSize="18sp"
+                        android:text="这是解析"
+                        />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#11000000"
+            android:orientation="horizontal">
+
+        <TextView
+                android:id="@+id/tv_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:gravity="right"
+                android:layout_weight="1"
+                android:textSize="15sp"
+                android:text="测试测试"/>
+    </LinearLayout>
+
+</LinearLayout>

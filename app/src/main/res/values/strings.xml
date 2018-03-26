@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">PriPathology</string>
+    <string name="title_practice">Practice</string>
+    <string name="title_exam">Exam</string>
+    <string name="title_mine">Mine</string>
+    <string name="order">Order</string>
+    <string name="random">Random</string>
+    <string name="download_database">DownloadData</string>
+    <string name="upload_database">UploadData</string>
+    <string name="sync_database">SyncData</string>
+    <string name="splash_text">Loading</string>
+</resources>

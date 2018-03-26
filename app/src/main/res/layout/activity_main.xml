@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context="com.example.louiemain.pripathology.activity.MainActivity">
+
+    <!-- 引入toolbar -->
+    <include layout="@layout/base_toolbar"/>
+
+    <!--<FrameLayout-->
+            <!--android:id="@+id/fl_content"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="0dp"-->
+            <!--android:layout_weight="1">-->
+
+    <!--</FrameLayout>-->
+
+    <!-- 中间部分 -->
+    <android.support.v4.view.ViewPager
+            android:id="@+id/vp_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"></android.support.v4.view.ViewPager>
+
+    <!-- 底部导航栏 -->
+    <android.support.design.widget.BottomNavigationView
+            android:id="@+id/nv_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="?android:attr/windowBackground"
+            app:menu="@menu/navigation"/>
+
+</LinearLayout>
