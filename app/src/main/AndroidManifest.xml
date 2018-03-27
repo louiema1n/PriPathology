@@ -14,16 +14,18 @@
         <activity android:name=".activity.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
         <activity
                 android:name=".activity.MainActivity"
                 android:label="@string/app_name">
         </activity>
         <activity android:name=".activity.OrderPracticeActivity"/>
         <activity android:name=".activity.RandomPracticeActivity">
+        </activity>
+        <activity android:name=".activity.TopicActivity">
         </activity>
     </application>
 
