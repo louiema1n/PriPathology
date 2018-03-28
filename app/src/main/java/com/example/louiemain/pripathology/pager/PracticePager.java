@@ -46,14 +46,13 @@ public class PracticePager extends BasePager {
     private class MyOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            Intent intent = null;
+            Intent intent = new Intent(context, TopicActivity.class);
             switch (view.getId()) {
                 case R.id.btn_order:
-                    intent = new Intent(context, TopicActivity.class);
-//                    intent = new Intent(context, OrderPracticeActivity.class);
+                    intent.putExtra("tag", "order");
                     break;
                 case R.id.btn_random:
-                    intent = new Intent(context, RandomPracticeActivity.class);
+                    intent.putExtra("tag", "random");
                     break;
             }
             context.startActivity(intent);
