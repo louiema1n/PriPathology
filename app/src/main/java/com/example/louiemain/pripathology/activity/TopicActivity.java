@@ -6,6 +6,7 @@ import android.support.v4.view.ViewPager;
 import com.example.louiemain.pripathology.R;
 import com.example.louiemain.pripathology.adapter.TopicFragmentStateAdapter;
 import com.example.louiemain.pripathology.dao.TopicDao;
+import com.example.louiemain.pripathology.dao.TopicRecordDao;
 import com.example.louiemain.pripathology.view.TopicFragmentView;
 
 import java.util.ArrayList;
@@ -31,7 +32,11 @@ public class TopicActivity extends com.example.louiemain.pripathology.activity.b
         initView();
         tag = getIntent().getStringExtra("tag");
         if (tag.equals("order")) {
-            id = 1;
+            // 查询当前已记录的最大已做题目id
+            id = new TopicRecordDao(this).getMaxSelectedId() + 1;
+            if (id == 0) {
+                id = 1;
+            }
             getToolbarTitle().setText(getString(R.string.order) + getString(R.string.title_practice));
         } else if (tag.equals("random")){
             id = new Random().nextInt(2140) + 1;
@@ -42,6 +47,7 @@ public class TopicActivity extends com.example.louiemain.pripathology.activity.b
         vp_topic_container.setAdapter(adapter);
         vp_topic_container.addOnPageChangeListener(new TopicOnPageChangeListener());
     }
+
 
     private void initData(int id) {
         fragments = new ArrayList<>();
