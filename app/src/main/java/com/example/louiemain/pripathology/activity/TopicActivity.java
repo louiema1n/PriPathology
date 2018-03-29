@@ -2,13 +2,10 @@ package com.example.louiemain.pripathology.activity;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import com.example.louiemain.pripathology.R;
-import com.example.louiemain.pripathology.adapter.TopicBaseAdapter;
 import com.example.louiemain.pripathology.adapter.TopicFragmentStateAdapter;
 import com.example.louiemain.pripathology.dao.TopicDao;
-import com.example.louiemain.pripathology.domain.Topic;
 import com.example.louiemain.pripathology.view.TopicFragmentView;
 
 import java.util.ArrayList;

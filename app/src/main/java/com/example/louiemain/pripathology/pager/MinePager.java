@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
@@ -16,7 +17,7 @@ import android.support.v7.widget.CardView;
 import android.view.View;
 import android.widget.Toast;
 import com.example.louiemain.pripathology.R;
-import com.example.louiemain.pripathology.activity.MainActivity;
+import com.example.louiemain.pripathology.activity.TopicRecordActivity;
 import com.example.louiemain.pripathology.base.BasePager;
 import com.example.louiemain.pripathology.utils.DataBaseHelper;
 import org.json.JSONException;
@@ -57,6 +58,8 @@ public class MinePager extends BasePager {
 
     // 是否中断线程
     private boolean ifInterrupt = false;
+    private CardView cv_order_record;
+    private CardView cv_random_record;
 
     public MinePager(Context context) {
         super(context);
@@ -71,9 +74,13 @@ public class MinePager extends BasePager {
 
         cv_download_data = (CardView) view.findViewById(R.id.cv_download_data);
         cv_upload_data = (CardView) view.findViewById(R.id.cv_upload_data);
+        cv_order_record = (CardView) view.findViewById(R.id.cv_order_record);
+        cv_random_record = (CardView) view.findViewById(R.id.cv_random_record);
 
         cv_download_data.setOnClickListener(new MyOnClickListener());
         cv_upload_data.setOnClickListener(new MyOnClickListener());
+        cv_order_record.setOnClickListener(new MyOnClickListener());
+        cv_random_record.setOnClickListener(new MyOnClickListener());
 
         return view;
     }
@@ -86,6 +93,12 @@ public class MinePager extends BasePager {
                     initDataBase();
                     break;
                 case R.id.cv_upload_data:
+
+                    break;
+                case R.id.cv_order_record:
+                    context.startActivity(new Intent(context, TopicRecordActivity.class));
+                    break;
+                case R.id.cv_random_record:
 
                     break;
             }

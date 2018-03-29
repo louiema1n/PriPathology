@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:orientation="vertical"
+              android:layout_height="wrap_content">
+
+    <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp">
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp">
+            <TextView
+                    android:id="@+id/tv_record_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:layout_marginLeft="5dp"
+                    android:textSize="20sp"
+                    android:background="@drawable/number_bg_selector"
+                    android:textColor="@android:color/white"
+                    android:text="28"/>
+            <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:orientation="vertical">
+                <TextView
+                        android:id="@+id/tv_record_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="我是题目"
+                        android:textSize="18sp"
+                        android:textColor="@android:color/black"/>
+                <TextView
+                        android:id="@+id/tv_record_right_answer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/colorRbRight"
+                        android:text="我是答案"
+                        android:paddingTop="3dp"
+                        android:paddingBottom="3dp"/>
+                <TextView
+                        android:id="@+id/tv_record_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2018-3-29 11:34:52"/>
+            </LinearLayout>
+            <TextView
+                    android:id="@+id/tv_record_select_answer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:layout_marginRight="5dp"
+                    android:textSize="25sp"
+                    android:text="A"/>
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>

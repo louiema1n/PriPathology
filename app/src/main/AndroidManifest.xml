@@ -27,6 +27,8 @@
         </activity>
         <activity android:name=".activity.TopicActivity">
         </activity>
+        <activity android:name=".activity.TopicRecordActivity">
+        </activity>
     </application>
 
 </manifest>

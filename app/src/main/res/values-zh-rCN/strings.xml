@@ -9,4 +9,7 @@
     <string name="upload_database">上传数据</string>
     <string name="sync_database">同步数据</string>
     <string name="splash_text">启动中</string>
+    <string name="record_topic">答题记录</string>
+    <string name="record_order">顺序答题</string>
+    <string name="record_random">随机答题</string>
 </resources>

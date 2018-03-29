@@ -9,4 +9,7 @@
     <string name="upload_database">UploadData</string>
     <string name="sync_database">SyncData</string>
     <string name="splash_text">Loading</string>
+    <string name="record_topic">RecordTopic</string>
+    <string name="record_order">OrderRecord</string>
+    <string name="record_random">RandomRecord</string>
 </resources>
