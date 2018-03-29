@@ -35,6 +35,15 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             "  d varchar(2550) DEFAULT NULL," +
             "  e varchar(2550) DEFAULT NULL)";
 
+    private String createTopicRecord = "CREATE TABLE  if not exists topic_record (" +
+            "  id integer primary key  autoincrement not null," +
+            "  name varchar(2550) DEFAULT NULL," +
+            "  number integer," +
+            "  rightAnswer varchar(25) DEFAULT NULL," +
+            "  time DATETIME DEFAULT NULL," +
+            "  target integer," +
+            "  selectAnswer varchar(25) DEFAULT NULL)";
+
     public DataBaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
@@ -47,10 +56,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        sqLiteDatabase.execSQL("drop table if exists exam");
-        sqLiteDatabase.execSQL("drop table if exists radio");
-
-        onCreate(sqLiteDatabase);
+//        sqLiteDatabase.execSQL("drop table if exists exam");
+//        sqLiteDatabase.execSQL("drop table if exists radio");
+//
+//        onCreate(sqLiteDatabase);
+        sqLiteDatabase.execSQL(createTopicRecord);
     }
 
     /**

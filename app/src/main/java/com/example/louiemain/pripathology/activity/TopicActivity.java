@@ -98,7 +98,7 @@ public class TopicActivity extends com.example.louiemain.pripathology.activity.b
     private void initFragments(String id) {
         bundle = new Bundle();
         bundle.putSerializable("topic", new TopicDao(TopicActivity.this).generatePractice(id));
-        tfv = TopicFragmentView.newInstance(bundle);
+        tfv = TopicFragmentView.newInstance(bundle, this);
         fragments.add(tfv);
     }
 }

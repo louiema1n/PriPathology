@@ -1,5 +1,7 @@
 package com.example.louiemain.pripathology.domain;
 
+import java.sql.Timestamp;
+
 /**
  * @Program: PriPathology
  * @Type: Class
@@ -10,10 +12,19 @@ package com.example.louiemain.pripathology.domain;
 public class TopicRecord {
     private int id;
     private String name;
-    private String number;
+    private int number;
     private String rightAnswer;
-    private String time;
+    private Timestamp time;
     private String selectAnswer;
+    private int target;
+
+    public int getTarget() {
+        return target;
+    }
+
+    public void setTarget(int target) {
+        this.target = target;
+    }
 
     public int getId() {
         return id;
@@ -31,11 +42,11 @@ public class TopicRecord {
         this.name = name;
     }
 
-    public String getNumber() {
+    public int getNumber() {
         return number;
     }
 
-    public void setNumber(String number) {
+    public void setNumber(int number) {
         this.number = number;
     }
 
@@ -47,11 +58,11 @@ public class TopicRecord {
         this.rightAnswer = rightAnswer;
     }
 
-    public String getTime() {
+    public Timestamp getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(Timestamp time) {
         this.time = time;
     }
 

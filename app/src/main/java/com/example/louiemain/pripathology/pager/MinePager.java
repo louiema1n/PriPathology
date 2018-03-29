@@ -70,7 +70,7 @@ public class MinePager extends BasePager {
         View view = View.inflate(context, R.layout.layout_mine, null);
 
         // 获取数据库操作对象
-        helper = new DataBaseHelper(context, "topic", null, 1);
+        helper = new DataBaseHelper(context, "topic", null, 2);
 
         cv_download_data = (CardView) view.findViewById(R.id.cv_download_data);
         cv_upload_data = (CardView) view.findViewById(R.id.cv_upload_data);

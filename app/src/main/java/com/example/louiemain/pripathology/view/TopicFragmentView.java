@@ -3,6 +3,9 @@ package com.example.louiemain.pripathology.view;/**
  * @author&date Created by louiemain on 2018/3/28 16:52
  */
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,8 +18,9 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import com.example.louiemain.pripathology.R;
 import com.example.louiemain.pripathology.domain.Topic;
+import com.example.louiemain.pripathology.utils.DataBaseHelper;
 
-import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @Pragram: PriPathology
@@ -46,6 +50,14 @@ public class TopicFragmentView extends Fragment {
     // 正确答案所属下标
     private int position;
 
+    private Topic topic;
+
+    private static final String TABLE_TOPIC_RECORD = "topic_record";
+    private SQLiteDatabase database;
+    private DataBaseHelper helper;
+
+    private static Context context;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,7 +74,7 @@ public class TopicFragmentView extends Fragment {
     }
 
     private void initData() {
-        Topic topic = (Topic) bundle.getSerializable("topic");
+        topic = (Topic) bundle.getSerializable("topic");
         tv_name.setText(topic.getName());
         rb_a.setText(topic.getA());
         rb_b.setText(topic.getB());
@@ -98,6 +110,8 @@ public class TopicFragmentView extends Fragment {
         rb_e.setOnClickListener(new MyOnClickListener());
 
         ly_result_analysis.setVisibility(View.GONE);
+
+        helper = new DataBaseHelper(context, "topic", null, 2);
     }
 
     /**
@@ -105,9 +119,10 @@ public class TopicFragmentView extends Fragment {
      * @param bundle
      * @return
      */
-    public static TopicFragmentView newInstance(Bundle bundle) {
+    public static TopicFragmentView newInstance(Bundle bundle, Context context) {
         TopicFragmentView topicFragmentView = new TopicFragmentView();
         topicFragmentView.setArguments(bundle);
+        TopicFragmentView.context = context;
         return topicFragmentView;
     }
 
@@ -122,6 +137,7 @@ public class TopicFragmentView extends Fragment {
      * 初始化正确答案
      */
     private void handleOption() {
+        database = helper.getWritableDatabase();
         // 禁用所有选项
         for (int i = 0; i < rg_option.getChildCount(); i++) {
             rg_option.getChildAt(i).setEnabled(false);
@@ -150,5 +166,17 @@ public class TopicFragmentView extends Fragment {
 
         // 显示答案及解析
         ly_result_analysis.setVisibility(View.VISIBLE);
+
+        // 插入记录到数据库
+        ContentValues values = new ContentValues();
+        values.put("name", topic.getName());
+        values.put("number", topic.getNumber());
+        values.put("rightAnswer", rightAnser);
+        values.put("time", (new Date()).getTime());
+        values.put("selectAnswer", (String) ((RadioButton) rg_option.getChildAt(position)).getText());
+        values.put("target", 0);
+        //执行插入操作
+        database.insert(TABLE_TOPIC_RECORD, null, values);
+        database.close();
     }
 }

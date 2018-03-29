@@ -8,6 +8,7 @@ import android.widget.TextView;
 import com.example.louiemain.pripathology.R;
 import com.example.louiemain.pripathology.domain.TopicRecord;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -52,10 +53,10 @@ public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.View
         TRViewHolder trViewHolder = (TRViewHolder) holder;
         TopicRecord topicRecord = topicRecords.get(position);
         // 绑定数据
-        trViewHolder.tv_record_number.setText(topicRecord.getNumber());
+        trViewHolder.tv_record_number.setText(topicRecord.getNumber() + "");
         trViewHolder.tv_record_name.setText(topicRecord.getName());
         trViewHolder.tv_record_right_answer.setText(topicRecord.getRightAnswer());
-        trViewHolder.tv_record_time.setText(topicRecord.getTime());
+        trViewHolder.tv_record_time.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(topicRecord.getTime()));
         trViewHolder.tv_record_select_answer.setText(topicRecord.getSelectAnswer());
     }
 
