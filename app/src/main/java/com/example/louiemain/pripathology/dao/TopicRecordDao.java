@@ -36,7 +36,7 @@ public class TopicRecordDao {
      * @return
      */
     public Cursor getCursorByTarget(int target) {
-        helper = new DataBaseHelper(context, "topic", null, 2);
+        helper = new DataBaseHelper(context, "topic", null, 3);
         // 得到数据库操作对象-读取模式
         database = helper.getReadableDatabase();
         try {
@@ -57,7 +57,7 @@ public class TopicRecordDao {
     }
 
     public int getMaxSelectedId() {
-        helper = new DataBaseHelper(context, "topic", null, 2);
+        helper = new DataBaseHelper(context, "topic", null, 3);
         // 得到数据库操作对象-读取模式
         database = helper.getReadableDatabase();
         try {

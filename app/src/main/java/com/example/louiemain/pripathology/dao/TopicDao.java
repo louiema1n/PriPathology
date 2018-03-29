@@ -41,7 +41,7 @@ public class TopicDao {
      * @param id
      */
     public Topic generatePractice(String id) {
-        helper = new DataBaseHelper(context, "topic", null, 2);
+        helper = new DataBaseHelper(context, "topic", null, 3);
 
         // 得到数据库操作对象-读取模式
         database = helper.getReadableDatabase();

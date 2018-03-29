@@ -58,6 +58,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 //        sqLiteDatabase.execSQL("drop table if exists exam");
 //        sqLiteDatabase.execSQL("drop table if exists radio");
+        sqLiteDatabase.execSQL("drop table if exists topic_record");
 //
 //        onCreate(sqLiteDatabase);
         sqLiteDatabase.execSQL(createTopicRecord);
