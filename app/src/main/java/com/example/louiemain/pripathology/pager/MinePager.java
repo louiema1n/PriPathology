@@ -88,6 +88,7 @@ public class MinePager extends BasePager {
     private class MyOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
+            Intent intent = new Intent(context, TopicRecordActivity.class);
             switch (view.getId()) {
                 case R.id.cv_download_data:
                     initDataBase();
@@ -96,12 +97,13 @@ public class MinePager extends BasePager {
 
                     break;
                 case R.id.cv_order_record:
-                    context.startActivity(new Intent(context, TopicRecordActivity.class));
+                    intent.putExtra("tag", "order");
                     break;
                 case R.id.cv_random_record:
-
+                    intent.putExtra("tag", "random");
                     break;
             }
+            context.startActivity(intent);
         }
     }
 

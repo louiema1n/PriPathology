@@ -21,6 +21,7 @@ import java.util.List;
 public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<TopicRecord> topicRecords;
+    private View view;
 
     public TopicRecordRVAdapter(List<TopicRecord> topicRecords) {
         this.topicRecords = topicRecords;
@@ -36,7 +37,7 @@ public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.View
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // 实例化展示的view
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_topic_record, parent, false);
+        view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_topic_record, parent, false);
         // 实例化viewHolder
         RecyclerView.ViewHolder viewHolder = new TRViewHolder(view);
         return viewHolder;
@@ -55,9 +56,18 @@ public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.View
         // 绑定数据
         trViewHolder.tv_record_number.setText(topicRecord.getNumber() + "");
         trViewHolder.tv_record_name.setText(topicRecord.getName());
-        trViewHolder.tv_record_right_answer.setText(topicRecord.getRightAnswer());
+        String rightAnswer = topicRecord.getRightAnswer();
+        trViewHolder.tv_record_right_answer.setText(rightAnswer);
         trViewHolder.tv_record_time.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(topicRecord.getTime()));
         trViewHolder.tv_record_select_answer.setText(topicRecord.getSelectAnswer());
+        // 处理错误答案
+        // 获取选择的答案
+        rightAnswer = rightAnswer.substring(0, 1);
+        if (!rightAnswer.equals(topicRecord.getSelectAnswer())) {
+            trViewHolder.tv_record_select_answer.setTextColor(view.getResources().getColor(R.color.colorAccent, null));
+            trViewHolder.tv_record_number.setEnabled(false);
+        }
+
     }
 
     /**
@@ -71,7 +81,7 @@ public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     /**
-     * 自定义实现RecyclerView.ViewHolder
+     * 自定义实现RecyclerView.ViewHolderr
      */
     public static class TRViewHolder extends RecyclerView.ViewHolder {
         public TextView tv_record_number;

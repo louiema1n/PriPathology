@@ -57,6 +57,7 @@ public class TopicFragmentView extends Fragment {
     private DataBaseHelper helper;
 
     private static Context context;
+    private String tag;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,6 +88,8 @@ public class TopicFragmentView extends Fragment {
         tv_number.setText(topic.getNumber());
 
         rightAnser = topic.getAnser();
+
+        tag = bundle.getString("tag");
     }
 
     private void initView(View view) {
@@ -129,14 +132,31 @@ public class TopicFragmentView extends Fragment {
     private class MyOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            handleOption();
+            switch (view.getId()) {
+                case R.id.rb_a:
+                    handleOption("A");
+                    break;
+                case R.id.rb_b:
+                    handleOption("B");
+                    break;
+                case R.id.rb_c:
+                    handleOption("C");
+                    break;
+                case R.id.rb_d:
+                    handleOption("D");
+                    break;
+                case R.id.rb_e:
+                    handleOption("E");
+                    break;
+            }
+
         }
     }
 
     /**
      * 初始化正确答案
      */
-    private void handleOption() {
+    private void handleOption(String selectOption) {
         database = helper.getWritableDatabase();
         // 禁用所有选项
         for (int i = 0; i < rg_option.getChildCount(); i++) {
@@ -171,10 +191,10 @@ public class TopicFragmentView extends Fragment {
         ContentValues values = new ContentValues();
         values.put("name", topic.getName());
         values.put("number", topic.getNumber());
-        values.put("rightAnswer", rightAnser);
+        values.put("rightAnswer", (String) ((RadioButton) rg_option.getChildAt(position)).getText());
         values.put("time", (new Date()).getTime());
-        values.put("selectAnswer", (String) ((RadioButton) rg_option.getChildAt(position)).getText());
-        values.put("target", 0);
+        values.put("selectAnswer", selectOption);
+        values.put("target", tag.equals("order") ? 0 : 1);
         //执行插入操作
         database.insert(TABLE_TOPIC_RECORD, null, values);
         database.close();

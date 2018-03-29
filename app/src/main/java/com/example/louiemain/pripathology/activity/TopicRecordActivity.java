@@ -11,14 +11,11 @@ import android.widget.Toast;
 import com.example.louiemain.pripathology.R;
 import com.example.louiemain.pripathology.activity.base.BaseAppCompatActivity;
 import com.example.louiemain.pripathology.adapter.TopicRecordRVAdapter;
-import com.example.louiemain.pripathology.domain.Topic;
 import com.example.louiemain.pripathology.domain.TopicRecord;
 import com.example.louiemain.pripathology.utils.DataBaseHelper;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class TopicRecordActivity extends BaseAppCompatActivity {
@@ -31,17 +28,32 @@ public class TopicRecordActivity extends BaseAppCompatActivity {
     private SQLiteDatabase database;
     private DataBaseHelper helper;
 
+    private String tag;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_topic_record);
-        getToolbarTitle().setText(getString(R.string.record_topic));
+        tag = getIntent().getStringExtra("tag");
+        // 设置title
+        switch (tag) {
+            case "order":
+                getToolbarTitle().setText(getString(R.string.record_order));
+                break;
+            case "random":
+                getToolbarTitle().setText(getString(R.string.record_random));
+                break;
+        }
+
         initView();
         initData();
     }
 
     private void initData() {
         layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+
+        helper = new DataBaseHelper(this, "topic", null, 2);
+
         List<TopicRecord> topicRecords = initTopicRecords();
         adapter = new TopicRecordRVAdapter(topicRecords);
 
@@ -50,39 +62,45 @@ public class TopicRecordActivity extends BaseAppCompatActivity {
         // 设置adapter
         rv_container.setAdapter(adapter);
 
-        helper = new DataBaseHelper(this, "topic", null, 2);
     }
 
     /**
      * 初始化需要展示的TopicRecord数据
+     *
      * @return
      */
     private List<TopicRecord> initTopicRecords() {
         List<TopicRecord> topicRecords = new ArrayList<>();
-        TopicRecord topicRecord = null;
+        TopicRecord topicRecord;
 
         // 得到数据库操作对象-读取模式
         database = helper.getReadableDatabase();
         try {
-            Cursor cursorExam = database.query(TABLE_TOPIC_RECORD,
+            Cursor cursor = database.query(TABLE_TOPIC_RECORD,
                     new String[]{"id", "name", "number", "rightAnswer", "time", "selectAnswer", "target"},
-                    null,
-                    null,
+                    "target = ?",
+                    new String[] {String.valueOf(tag.equals("order") ? 0 : 1)},
                     null,
                     null,
                     null);
 
             // cursor置顶
-            cursorExam.moveToFirst();
-            if (cursorExam != null) {
-                topicRecord.setName(cursorExam.getString(cursorExam.getColumnIndex("name")));
-                topicRecord.setNumber(cursorExam.getInt(cursorExam.getColumnIndex("number")));
-                topicRecord.setRightAnswer(cursorExam.getString(cursorExam.getColumnIndex("rightAnswer")));
-                topicRecord.setTime(Timestamp.valueOf(cursorExam.getString(cursorExam.getColumnIndex("time"))));
-                topicRecord.setSelectAnswer(cursorExam.getString(cursorExam.getColumnIndex("selectAnswer")));
-                topicRecord.setTarget(cursorExam.getInt(cursorExam.getColumnIndex("target")));
+            cursor.moveToFirst();
+            if (cursor != null) {
+                // cursor遍历
+                while (!cursor.isAfterLast()) {
+                    topicRecord = new TopicRecord();
 
-                topicRecords.add(topicRecord);
+                    topicRecord.setName(cursor.getString(cursor.getColumnIndex("name")));
+                    topicRecord.setNumber(cursor.getInt(cursor.getColumnIndex("number")));
+                    topicRecord.setRightAnswer(cursor.getString(cursor.getColumnIndex("rightAnswer")));
+                    topicRecord.setTime(new Timestamp(cursor.getLong(cursor.getColumnIndex("time"))));
+                    topicRecord.setSelectAnswer(cursor.getString(cursor.getColumnIndex("selectAnswer")));
+                    topicRecord.setTarget(cursor.getInt(cursor.getColumnIndex("target")));
+
+                    topicRecords.add(topicRecord);
+                    cursor.moveToNext();
+                }
             } else {
                 Log.i("msg", "未查询到数据Exam");
             }
