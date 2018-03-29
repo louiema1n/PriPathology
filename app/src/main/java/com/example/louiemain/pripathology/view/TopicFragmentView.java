@@ -114,7 +114,7 @@ public class TopicFragmentView extends Fragment {
 
         ly_result_analysis.setVisibility(View.GONE);
 
-        helper = new DataBaseHelper(context, "topic", null, 2);
+        helper = new DataBaseHelper(context, "topic", null, 3);
     }
 
     /**
