@@ -10,6 +10,7 @@ import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
 import com.example.louiemain.pripathology.utils.DataBaseHelper;
+import com.example.louiemain.pripathology.utils.SharedPreferencesUtil;
 
 /**
  * @Pragram: PriPathology
@@ -25,9 +26,11 @@ public class TopicRecordDao {
     private DataBaseHelper helper;
 
     private Context context;
+    private Integer databaseVer;
 
     public TopicRecordDao(Context context) {
         this.context = context;
+        databaseVer = new SharedPreferencesUtil(context).getDatabaseVer();
     }
 
     /**
@@ -58,7 +61,7 @@ public class TopicRecordDao {
     }
 
     private void intiDataBaseHelper() {
-        helper = new DataBaseHelper(context, "topic", null, 3);
+        helper = new DataBaseHelper(context, "topic", null, databaseVer);
     }
 
     public int getMaxSelectedId() {

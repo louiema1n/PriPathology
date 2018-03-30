@@ -17,6 +17,7 @@ import com.example.louiemain.pripathology.base.BasePager;
 import com.example.louiemain.pripathology.pager.ExamPager;
 import com.example.louiemain.pripathology.pager.MinePager;
 import com.example.louiemain.pripathology.pager.PracticePager;
+import com.example.louiemain.pripathology.utils.SharedPreferencesUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,9 @@ public class MainActivity extends BaseAppCompatActivity {
 //        setContentView();
         iniData();
         iniView();
+
+        // 初始化数据库版本
+        new SharedPreferencesUtil(this).writeDatabaseVer(1);
     }
 
     private void iniData() {

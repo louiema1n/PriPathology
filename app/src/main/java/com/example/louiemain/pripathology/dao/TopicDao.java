@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 import com.example.louiemain.pripathology.domain.Topic;
 import com.example.louiemain.pripathology.utils.DataBaseHelper;
+import com.example.louiemain.pripathology.utils.SharedPreferencesUtil;
 
 /**
  * @Pragram: PriPathology
@@ -30,9 +31,11 @@ public class TopicDao {
     private SQLiteDatabase database;
 
     private Topic topic;
+    private Integer databaseVer;
 
     public TopicDao(Context context) {
         this.context = context;
+        databaseVer = new SharedPreferencesUtil(context).getDatabaseVer();
     }
 
     /**
@@ -41,7 +44,7 @@ public class TopicDao {
      * @param id
      */
     public Topic generatePractice(String id) {
-        helper = new DataBaseHelper(context, "topic", null, 3);
+        helper = new DataBaseHelper(context, "topic", null, databaseVer);
 
         // 得到数据库操作对象-读取模式
         database = helper.getReadableDatabase();
