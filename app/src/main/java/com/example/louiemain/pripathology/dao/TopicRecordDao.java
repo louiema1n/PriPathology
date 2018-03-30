@@ -37,7 +37,7 @@ public class TopicRecordDao {
      * @return
      */
     public Cursor getCursorByTarget(int target) {
-        helper = new DataBaseHelper(context, "topic", null, 3);
+        intiDataBaseHelper();
         // 得到数据库操作对象-读取模式
         database = helper.getReadableDatabase();
         try {
