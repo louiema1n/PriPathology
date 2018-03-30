@@ -52,6 +52,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(createExam);
         sqLiteDatabase.execSQL(createRadio);
+        sqLiteDatabase.execSQL(createTopicRecord);
     }
 
     @Override

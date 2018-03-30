@@ -179,8 +179,8 @@ public class MinePager extends BasePager {
                     }
                     try {
                         String result = "";
-//                        url = new URL("http://192.168.110.94/blcj/get/" + i);
-                        url = new URL("http://192.168.1.102/blcj/get/" + i);
+                        url = new URL("http://192.168.110.94/blcj/get/" + i);
+//                        url = new URL("http://192.168.1.102/blcj/get/" + i);
                         conn = (HttpURLConnection) url.openConnection();
                         conn.setRequestMethod("GET");
                         conn.setConnectTimeout(3000);
@@ -253,7 +253,7 @@ public class MinePager extends BasePager {
 
                     break;
                 case COUNT_DOWN:
-                    tv_count_down.setText("距离考试" + calcCountDown());
+                    tv_count_down.setText("距离考试还有" + calcCountDown());
                     removeMessages(COUNT_DOWN);
                     sendEmptyMessageDelayed(COUNT_DOWN, 1000 * 60);
                     break;

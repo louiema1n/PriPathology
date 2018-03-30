@@ -17,7 +17,9 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import com.example.louiemain.pripathology.R;
+import com.example.louiemain.pripathology.dao.TopicRecordDao;
 import com.example.louiemain.pripathology.domain.Topic;
+import com.example.louiemain.pripathology.domain.TopicRecord;
 import com.example.louiemain.pripathology.utils.DataBaseHelper;
 
 import java.util.Date;
@@ -52,9 +54,6 @@ public class TopicFragmentView extends Fragment {
 
     private Topic topic;
 
-    private static final String TABLE_TOPIC_RECORD = "topic_record";
-    private SQLiteDatabase database;
-    private DataBaseHelper helper;
 
     private static Context context;
     private String tag;
@@ -114,7 +113,6 @@ public class TopicFragmentView extends Fragment {
 
         ly_result_analysis.setVisibility(View.GONE);
 
-        helper = new DataBaseHelper(context, "topic", null, 3);
     }
 
     /**
@@ -157,7 +155,6 @@ public class TopicFragmentView extends Fragment {
      * 初始化正确答案
      */
     private void handleOption(String selectOption) {
-        database = helper.getWritableDatabase();
         // 禁用所有选项
         for (int i = 0; i < rg_option.getChildCount(); i++) {
             rg_option.getChildAt(i).setEnabled(false);
@@ -195,8 +192,8 @@ public class TopicFragmentView extends Fragment {
         values.put("time", (new Date()).getTime());
         values.put("selectAnswer", selectOption);
         values.put("target", tag.equals("order") ? 0 : 1);
+
         //执行插入操作
-        database.insert(TABLE_TOPIC_RECORD, null, values);
-        database.close();
+        new TopicRecordDao(context).saveTopicRecord(values);
     }
 }

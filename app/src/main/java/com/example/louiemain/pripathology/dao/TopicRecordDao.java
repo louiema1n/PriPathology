@@ -3,6 +3,7 @@ package com.example.louiemain.pripathology.dao;/**
  * @author&date Created by louiemain on 2018/3/29 20:35
  */
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
@@ -56,8 +57,12 @@ public class TopicRecordDao {
         return null;
     }
 
-    public int getMaxSelectedId() {
+    private void intiDataBaseHelper() {
         helper = new DataBaseHelper(context, "topic", null, 3);
+    }
+
+    public int getMaxSelectedId() {
+        intiDataBaseHelper();
         // 得到数据库操作对象-读取模式
         database = helper.getReadableDatabase();
         try {
@@ -74,5 +79,12 @@ public class TopicRecordDao {
         }
         database.close();
         return 0;
+    }
+
+    public void saveTopicRecord(ContentValues values) {
+        intiDataBaseHelper();
+        database = helper.getWritableDatabase();
+        database.insert(TABLE_TOPIC_RECORD, null, values);
+        database.close();
     }
 }
