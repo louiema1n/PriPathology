@@ -1,8 +1,12 @@
 package com.example.louiemain.pripathology.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import com.example.louiemain.pripathology.R;
 import com.example.louiemain.pripathology.adapter.TopicFragmentStateAdapter;
 import com.example.louiemain.pripathology.dao.TopicDao;
@@ -107,5 +111,33 @@ public class TopicActivity extends com.example.louiemain.pripathology.activity.b
         bundle.putString("tag", tag);
         tfv = TopicFragmentView.newInstance(bundle, this);
         fragments.add(tfv);
+    }
+
+    /**
+     * 加载菜单资源
+     * @param menu
+     * @return
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // 获取MenuInflater
+        MenuInflater menuInflater = getMenuInflater();
+        // 加载menu
+        menuInflater.inflate(R.menu.menu_topic_record, menu);
+        // 自己处理
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            default:
+                return super.onOptionsItemSelected(item);
+            case R.id.menu_topic_record:
+                Intent intent = new Intent(this, TopicRecordActivity.class);
+                intent.putExtra("tag", tag);
+                this.startActivity(intent);
+                return true;
+        }
     }
 }

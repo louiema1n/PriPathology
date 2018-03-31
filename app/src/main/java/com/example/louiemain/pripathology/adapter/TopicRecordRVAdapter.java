@@ -109,10 +109,8 @@ public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.View
         public TextView tv_record_right_answer;
         public TextView tv_record_time;
         public TextView tv_record_select_answer;
-        public CardView cv_item;
         public TRViewHolder(View itemView) {
             super(itemView);
-            this.cv_item = (CardView) itemView.findViewById(R.id.cv_item);
             this.tv_record_number = (TextView) itemView.findViewById(R.id.tv_record_number);
             this.tv_record_name = (TextView) itemView.findViewById(R.id.tv_record_name);
             this.tv_record_right_answer = (TextView) itemView.findViewById(R.id.tv_record_right_answer);
