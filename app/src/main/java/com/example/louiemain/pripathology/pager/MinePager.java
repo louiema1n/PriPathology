@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.example.louiemain.pripathology.R;
 import com.example.louiemain.pripathology.activity.TopicRecordActivity;
 import com.example.louiemain.pripathology.base.BasePager;
+import com.example.louiemain.pripathology.dao.InitData;
 import com.example.louiemain.pripathology.utils.DataBaseHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,11 +51,6 @@ public class MinePager extends BasePager {
     private CardView cv_download_data;
     private CardView cv_upload_data;
 
-    private static final String TABLE_EXAM = "exam";
-    private static final String TABLE_RADIO = "radio";
-    private DataBaseHelper helper;
-    private SQLiteDatabase database;
-
     private static final int LINK_NETWORK_FAIL = 0;
     private static final int UPDATE_SUCCESS = 1;
     private static final int SOCKET_TIMEOUT = 2;
@@ -82,9 +78,6 @@ public class MinePager extends BasePager {
     @Override
     public View initView() {
         View view = View.inflate(context, R.layout.layout_mine, null);
-
-        // 获取数据库操作对象
-        helper = new DataBaseHelper(context, "topic", null, 3);
 
         cv_download_data = (CardView) view.findViewById(R.id.cv_download_data);
         cv_upload_data = (CardView) view.findViewById(R.id.cv_upload_data);
@@ -179,8 +172,8 @@ public class MinePager extends BasePager {
                     }
                     try {
                         String result = "";
-                        url = new URL("http://192.168.110.94/blcj/get/" + i);
-//                        url = new URL("http://192.168.1.102/blcj/get/" + i);
+//                        url = new URL("http://192.168.110.94/blcj/get/" + i);
+                        url = new URL("http://192.168.1.102/blcj/get/" + i);
                         conn = (HttpURLConnection) url.openConnection();
                         conn.setRequestMethod("GET");
                         conn.setConnectTimeout(3000);
@@ -197,7 +190,10 @@ public class MinePager extends BasePager {
                             }
                             br.close();
                             is.close();
-                            insert(result);
+                            new InitData(context).insert(result);
+
+                            // 更新进度条
+                            progressDialog.setProgress(i);
                         }
                     } catch (SocketTimeoutException e) {
                         // 超时处理
@@ -260,63 +256,6 @@ public class MinePager extends BasePager {
             }
         }
     };
-
-
-    /**
-     * @param result
-     * @return void
-     * @description 插入数据到数据库
-     * @author louiemain
-     * @date Created on 2018/3/20 20:17
-     */
-    private void insert(String result) {
-        //获得SQLiteDatabase对象，读写模式
-        database = helper.getWritableDatabase();
-
-        database.beginTransaction();
-        //ContentValues类似HashMap，区别是ContentValues只能存简单数据类型，不能存对象
-        try {
-            JSONObject jsonObject = new JSONObject(result);
-            ContentValues values = new ContentValues();
-            values.put("name", jsonObject.optString("name"));
-            values.put("catalog", jsonObject.optString("catalog"));
-            values.put("type", jsonObject.optString("type"));
-            values.put("eid", jsonObject.optString("eid"));
-            values.put("commons", jsonObject.optString("commons"));
-            values.put("anser", jsonObject.optString("anser"));
-            values.put("analysis", jsonObject.optString("analysis"));
-            values.put("rid", jsonObject.optInt("rid"));
-            //执行插入操作
-            database.insert(TABLE_EXAM, null, values);
-            values = new ContentValues();
-            String radio = jsonObject.optString("radio");
-            JSONObject radioObj = new JSONObject(radio);
-            values.put("a", radioObj.optString("a"));
-            values.put("b", radioObj.optString("b"));
-            values.put("c", radioObj.optString("c"));
-            values.put("d", radioObj.optString("d"));
-            values.put("e", radioObj.optString("e"));
-            database.insert(TABLE_RADIO, null, values);
-            // 更新进度条
-            String sql = "select last_insert_rowid() from " + TABLE_RADIO;
-            Cursor cursor = database.rawQuery(sql, null);
-            int a = -1;
-            if (cursor.moveToFirst()) {
-                a = cursor.getInt(0);
-            }
-            progressDialog.setProgress(a);
-
-
-            // 设置事务成功
-            database.setTransactionSuccessful();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } finally {
-            // 结束事务
-            database.endTransaction();
-            database.close();
-        }
-    }
 
     /**
      * @param max
