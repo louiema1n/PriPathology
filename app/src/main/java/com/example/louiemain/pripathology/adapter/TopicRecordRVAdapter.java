@@ -1,6 +1,8 @@
 package com.example.louiemain.pripathology.adapter;
 
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +11,10 @@ import com.example.louiemain.pripathology.R;
 import com.example.louiemain.pripathology.domain.TopicRecord;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Program: PriPathology
@@ -23,8 +28,12 @@ public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.View
     private List<TopicRecord> topicRecords;
     private View view;
 
+    // 错误答案position集合
+    private Map<Integer, TRViewHolder> rightPositions;
+
     public TopicRecordRVAdapter(List<TopicRecord> topicRecords) {
         this.topicRecords = topicRecords;
+        rightPositions = new HashMap<>();
     }
 
     /**
@@ -59,15 +68,26 @@ public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.View
         String rightAnswer = topicRecord.getRightAnswer();
         trViewHolder.tv_record_right_answer.setText(rightAnswer);
         trViewHolder.tv_record_time.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(topicRecord.getTime()));
-        trViewHolder.tv_record_select_answer.setText(topicRecord.getSelectAnswer());
-        // 处理错误答案
-        // 获取选择的答案
+        String selectAnswer = topicRecord.getSelectAnswer();
+        trViewHolder.tv_record_select_answer.setText(selectAnswer);
+
+        // 错误答案
         rightAnswer = rightAnswer.substring(0, 1);
-        if (!rightAnswer.equals(topicRecord.getSelectAnswer())) {
+        if (!rightAnswer.equals(selectAnswer)) {
             trViewHolder.tv_record_select_answer.setTextColor(view.getResources().getColor(R.color.colorAccent, null));
             trViewHolder.tv_record_number.setEnabled(false);
+        } else {
+            // 正确答案
+            rightPositions.put(position, trViewHolder);
+            if (rightPositions.size() > 0) {
+                for (Integer pos : rightPositions.keySet()) {
+                    if (pos == position) {
+                        rightPositions.get(pos).tv_record_select_answer.setTextColor(view.getResources().getColor(R.color.colorRbRight, null));
+                        rightPositions.get(pos).tv_record_number.setEnabled(true);
+                    }
+                }
+            }
         }
-
     }
 
     /**
@@ -89,8 +109,10 @@ public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.View
         public TextView tv_record_right_answer;
         public TextView tv_record_time;
         public TextView tv_record_select_answer;
+        public CardView cv_item;
         public TRViewHolder(View itemView) {
             super(itemView);
+            this.cv_item = (CardView) itemView.findViewById(R.id.cv_item);
             this.tv_record_number = (TextView) itemView.findViewById(R.id.tv_record_number);
             this.tv_record_name = (TextView) itemView.findViewById(R.id.tv_record_name);
             this.tv_record_right_answer = (TextView) itemView.findViewById(R.id.tv_record_right_answer);
