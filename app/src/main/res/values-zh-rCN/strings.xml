@@ -12,4 +12,6 @@
     <string name="record_topic">答题记录</string>
     <string name="record_order">顺序答题</string>
     <string name="record_random">随机答题</string>
+    <string name="download_data">下载服务端数据</string>
+    <string name="insert_data">插入到数据库</string>
 </resources>

@@ -22,6 +22,7 @@ import com.example.louiemain.pripathology.activity.TopicRecordActivity;
 import com.example.louiemain.pripathology.base.BasePager;
 import com.example.louiemain.pripathology.dao.InitData;
 import com.example.louiemain.pripathology.utils.DataBaseHelper;
+import com.example.louiemain.pripathology.utils.SharedPreferencesUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -48,6 +49,8 @@ import java.util.TimeZone;
 public class MinePager extends BasePager {
 
     private static final int COUNT_DOWN = 4;
+    private static final int DOWNLOAD_DATA_HALF = 50;
+    private static final int DOWNLOAD_DATA_DONE = 100;
     private CardView cv_download_data;
     private CardView cv_upload_data;
 
@@ -64,6 +67,8 @@ public class MinePager extends BasePager {
     private CardView cv_random_record;
     private TextView tv_count_down;
 
+    private SharedPreferencesUtil sharedPreferencesUtil;
+
     public MinePager(Context context) {
         super(context);
         new Thread() {
@@ -73,6 +78,7 @@ public class MinePager extends BasePager {
                 handler.sendEmptyMessage(COUNT_DOWN);
             }
         }.start();
+        sharedPreferencesUtil = new SharedPreferencesUtil(context);
     }
 
     @Override
@@ -127,7 +133,12 @@ public class MinePager extends BasePager {
             Intent intent = new Intent(context, TopicRecordActivity.class);
             switch (view.getId()) {
                 case R.id.cv_download_data:
-                    initDataBase();
+                    if (sharedPreferencesUtil.getSyncDataState() == 0) {
+                        // 上次失败
+                        initDataBase();
+                    } else {
+                        Toast.makeText(context, "已经成功同步过数据库，无需执行此操作。", Toast.LENGTH_SHORT).show();
+                    } 
                     break;
                 case R.id.cv_upload_data:
 
@@ -152,7 +163,8 @@ public class MinePager extends BasePager {
      * @date Created on 2018/3/20 20:10
      */
     private void initDataBase() {
-        progressDialog = getProgressDialog(2140, context.getString(R.string.sync_database));
+        progressDialog = getProgressDialog(100, context.getString(R.string.sync_database));
+        progressDialog.setMessage(context.getString(R.string.download_data));
         progressDialog.show();
         new Thread() {
             @Override
@@ -162,65 +174,61 @@ public class MinePager extends BasePager {
                 // 解决 Can't create handler inside thread that has not called Looper.prepare()
                 Looper.prepare();
 
+                // 1.download data from server
                 HttpURLConnection conn = null;
                 URL url = null;
-                int i = 1;
-                for (; i <= 2140; i++) {
-                    if (ifInterrupt) {
-                        // 终止线程
-                        break;
-                    }
-                    try {
-                        String result = "";
+                String result = "";
+
+                try {
 //                        url = new URL("http://192.168.110.94/blcj/get/" + i);
-                        url = new URL("http://192.168.1.102/blcj/get/" + i);
-                        conn = (HttpURLConnection) url.openConnection();
-                        conn.setRequestMethod("GET");
-                        conn.setConnectTimeout(3000);
-                        conn.setReadTimeout(3000);
+                    url = new URL("http://192.168.1.103:8085/exam/all");
+                    conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setConnectTimeout(3000);
+                    conn.setReadTimeout(3000);
 
-                        if (conn.getResponseCode() == 200) {
-                            // 连接成功
-                            InputStream is = conn.getInputStream();
-                            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                            String str = null;
-                            while ((str = br.readLine()) != null) {
-                                // 还有数据
-                                result += str;
-                            }
-                            br.close();
-                            is.close();
-                            new InitData(context).insert(result);
+                    handler.sendEmptyMessage(DOWNLOAD_DATA_HALF);
 
-                            // 更新进度条
-                            progressDialog.setProgress(i);
+                    if (conn.getResponseCode() == 200) {
+                        // 连接成功
+                        InputStream is = conn.getInputStream();
+                        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                        String str = null;
+                        while ((str = br.readLine()) != null) {
+                            // 还有数据
+                            result += str;
                         }
-                    } catch (SocketTimeoutException e) {
-                        // 超时处理
-                        handler.sendEmptyMessage(SOCKET_TIMEOUT);
-                        e.printStackTrace();
-                        break;
-                    } catch (UnknownHostException e) {
-                        // 异常主机处理
-                        handler.sendEmptyMessage(LINK_NETWORK_FAIL);
-                        e.printStackTrace();
-                        break;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        // 关闭连接
-                        conn.disconnect();
+                        br.close();
+                        is.close();
+
+                        handler.sendEmptyMessage(DOWNLOAD_DATA_DONE);
+
+                        // 2.insert into local database
+                        String s = new InitData(context).insetDatabase(result);
+                        if (s == null) {
+                            handler.sendEmptyMessage(UPDATE_FAILURE);
+                        } else {
+                            handler.sendEmptyMessage(UPDATE_SUCCESS);
+                        }
                     }
+                } catch (SocketTimeoutException e) {
+                    // 超时处理
+                    handler.sendEmptyMessage(SOCKET_TIMEOUT);
+                    e.printStackTrace();
+                } catch (UnknownHostException e) {
+                    // 异常主机处理
+                    handler.sendEmptyMessage(LINK_NETWORK_FAIL);
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    // 关闭连接
+                    conn.disconnect();
                 }
-                if (i == 2141) {
-                    handler.sendEmptyMessage(UPDATE_SUCCESS);
-                } else {
-                    handler.sendEmptyMessage(UPDATE_FAILURE);
-                }
+
             }
+
         }.start();
-        // 关闭数据库
-//        database.close();
     }
 
     private Handler handler = new Handler() {
@@ -231,22 +239,32 @@ public class MinePager extends BasePager {
                 case LINK_NETWORK_FAIL:
                     Toast.makeText(context, "连接服务器失败，请稍后重试。", Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
-
+                    sharedPreferencesUtil.writeSyncDataState(0);
                     break;
                 case UPDATE_SUCCESS:
                     Toast.makeText(context, "数据更新成功。", Toast.LENGTH_SHORT).show();
+                    progressDialog.setProgress(100);
                     progressDialog.dismiss();
-
+                    sharedPreferencesUtil.writeSyncDataState(1);
                     break;
                 case UPDATE_FAILURE:
                     Toast.makeText(context, "数据更新失败，线程被终止。请退出程序后重试。", Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
-
+                    sharedPreferencesUtil.writeSyncDataState(0);
                     break;
                 case SOCKET_TIMEOUT:
                     Toast.makeText(context, "服务器连接超时，请稍后重试。", Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
-
+                    sharedPreferencesUtil.writeSyncDataState(0);
+                    break;
+                case DOWNLOAD_DATA_HALF:
+                    progressDialog.setProgress(25);
+                    progressDialog.setSecondaryProgress(50);
+                    break;
+                case DOWNLOAD_DATA_DONE:
+                    progressDialog.setProgress(50);
+                    progressDialog.setMessage(context.getString(R.string.insert_data));
+                    progressDialog.setSecondaryProgress(100);
                     break;
                 case COUNT_DOWN:
                     tv_count_down.setText("距离考试还有" + calcCountDown());

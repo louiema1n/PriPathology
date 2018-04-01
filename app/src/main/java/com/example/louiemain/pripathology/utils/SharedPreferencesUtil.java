@@ -12,20 +12,33 @@ import android.content.SharedPreferences;
  **/
 public class SharedPreferencesUtil {
     private Context context;
+    private SharedPreferences preferences;
+    private SharedPreferences.Editor editor;
 
     public SharedPreferencesUtil(Context context) {
         this.context = context;
+        // 0-默认模式（表示只有当前的应用程序才可以对当前这个SharedPreferences文件进行读写）
+        preferences = context.getSharedPreferences("sys_arg", 0);
+        // 获取文件存储编辑对象
+        editor = preferences.edit();
     }
 
     public void writeDatabaseVer(Integer databaseVer) {
-        // 0-默认模式（表示只有当前的应用程序才可以对当前这个SharedPreferences文件进行读写）
-        SharedPreferences preferences = context.getSharedPreferences("sys_arg", 0);
-        // 获取文件存储编辑对象
-        SharedPreferences.Editor editor = preferences.edit();
         // 写入文件
         editor.putInt("databaseVer", databaseVer);
         // 提交
         editor.commit();
+    }
+
+    public void writeSyncDataState(Integer state) {
+        // 写入文件
+        editor.putInt("syncDataState", state);
+        // 提交
+        editor.commit();
+    }
+
+    public Integer getSyncDataState() {
+        return context.getSharedPreferences("sys_arg", 0).getInt("syncDataState", 0);
     }
 
     public Integer getDatabaseVer() {

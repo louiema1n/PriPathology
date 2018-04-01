@@ -12,4 +12,6 @@
     <string name="record_topic">RecordTopic</string>
     <string name="record_order">OrderRecord</string>
     <string name="record_random">RandomRecord</string>
+    <string name="download_data">downloadData</string>
+    <string name="insert_data">insertData</string>
 </resources>
