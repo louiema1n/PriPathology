@@ -14,4 +14,7 @@
     <string name="record_random">随机答题</string>
     <string name="download_data">下载服务端数据</string>
     <string name="insert_data">插入到数据库</string>
+    <string name="download_topic">下载题目数据</string>
+    <string name="upload_topic_record">上传答题记录</string>
+    <string name="download_topic_record">下载答题记录</string>
 </resources>

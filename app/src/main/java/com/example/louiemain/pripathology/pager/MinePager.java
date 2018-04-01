@@ -4,12 +4,9 @@ package com.example.louiemain.pripathology.pager;/**
  */
 
 import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -21,10 +18,9 @@ import com.example.louiemain.pripathology.R;
 import com.example.louiemain.pripathology.activity.TopicRecordActivity;
 import com.example.louiemain.pripathology.base.BasePager;
 import com.example.louiemain.pripathology.dao.InitData;
-import com.example.louiemain.pripathology.utils.DataBaseHelper;
+import com.example.louiemain.pripathology.dao.TopicRecordDao;
+import com.example.louiemain.pripathology.utils.HttpUtil;
 import com.example.louiemain.pripathology.utils.SharedPreferencesUtil;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,9 +30,7 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 /**
@@ -51,8 +45,6 @@ public class MinePager extends BasePager {
     private static final int COUNT_DOWN = 4;
     private static final int DOWNLOAD_DATA_HALF = 50;
     private static final int DOWNLOAD_DATA_DONE = 100;
-    private CardView cv_download_data;
-    private CardView cv_upload_data;
 
     private static final int LINK_NETWORK_FAIL = 0;
     private static final int UPDATE_SUCCESS = 1;
@@ -61,13 +53,14 @@ public class MinePager extends BasePager {
 
     private ProgressDialog progressDialog;
 
-    // 是否中断线程
-    private boolean ifInterrupt = false;
     private CardView cv_order_record;
     private CardView cv_random_record;
     private TextView tv_count_down;
 
     private SharedPreferencesUtil sharedPreferencesUtil;
+    private CardView cv_download_topic;
+    private CardView cv_upload_topic_record;
+    private CardView cv_download_topic_record;
 
     public MinePager(Context context) {
         super(context);
@@ -85,13 +78,15 @@ public class MinePager extends BasePager {
     public View initView() {
         View view = View.inflate(context, R.layout.layout_mine, null);
 
-        cv_download_data = (CardView) view.findViewById(R.id.cv_download_data);
-        cv_upload_data = (CardView) view.findViewById(R.id.cv_upload_data);
         cv_order_record = (CardView) view.findViewById(R.id.cv_order_record);
         cv_random_record = (CardView) view.findViewById(R.id.cv_random_record);
+        cv_download_topic = (CardView) view.findViewById(R.id.cv_download_topic);
+        cv_upload_topic_record = (CardView) view.findViewById(R.id.cv_upload_topic_record);
+        cv_download_topic_record = (CardView) view.findViewById(R.id.cv_download_topic_record);
 
-        cv_download_data.setOnClickListener(new MyOnClickListener());
-        cv_upload_data.setOnClickListener(new MyOnClickListener());
+        cv_upload_topic_record.setOnClickListener(new MyOnClickListener());
+        cv_download_topic_record.setOnClickListener(new MyOnClickListener());
+        cv_download_topic.setOnClickListener(new MyOnClickListener());
         cv_order_record.setOnClickListener(new MyOnClickListener());
         cv_random_record.setOnClickListener(new MyOnClickListener());
 
@@ -132,15 +127,18 @@ public class MinePager extends BasePager {
         public void onClick(View view) {
             Intent intent = new Intent(context, TopicRecordActivity.class);
             switch (view.getId()) {
-                case R.id.cv_download_data:
+                case R.id.cv_download_topic:
                     if (sharedPreferencesUtil.getSyncDataState() == 0) {
                         // 上次失败
-                        initDataBase();
+                        downloadTopic();
                     } else {
                         Toast.makeText(context, "已经成功同步过数据库，无需执行此操作。", Toast.LENGTH_SHORT).show();
-                    } 
+                    }
                     break;
-                case R.id.cv_upload_data:
+                case R.id.cv_upload_topic_record:
+                    new HttpUtil(context).uploadTopicRecord(new TopicRecordDao(context).getAllTopicRecord());
+                    break;
+                case R.id.cv_download_topic_record:
 
                     break;
                 case R.id.cv_order_record:
@@ -162,7 +160,7 @@ public class MinePager extends BasePager {
      * @author louiemain
      * @date Created on 2018/3/20 20:10
      */
-    private void initDataBase() {
+    private void downloadTopic() {
         progressDialog = getProgressDialog(100, context.getString(R.string.sync_database));
         progressDialog.setMessage(context.getString(R.string.download_data));
         progressDialog.show();
@@ -295,7 +293,6 @@ public class MinePager extends BasePager {
             public void onClick(DialogInterface dialog, int which) {
                 // 取消进度条
                 dialog.dismiss();
-                ifInterrupt = true;
             }
         });
 

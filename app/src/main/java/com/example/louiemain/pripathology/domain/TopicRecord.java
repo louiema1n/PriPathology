@@ -1,5 +1,7 @@
 package com.example.louiemain.pripathology.domain;
 
+import com.example.louiemain.pripathology.utils.TimeUtil;
+
 import java.sql.Timestamp;
 
 /**
@@ -72,5 +74,17 @@ public class TopicRecord {
 
     public void setSelectAnswer(String selectAnswer) {
         this.selectAnswer = selectAnswer;
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "\"name\":\"" + name + '\"' +
+                ", \"number\":" + number +
+                ", \"rightAnswer\":\"" + rightAnswer + '\"' +
+                ", \"time\":\"" + new TimeUtil().TimeStamp2String(getTime()) + '\"' +
+                ", \"selectAnswer\":\"" + selectAnswer + '\"' +
+                ", \"target\":" + target +
+                '}';
     }
 }

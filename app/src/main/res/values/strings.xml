@@ -14,4 +14,7 @@
     <string name="record_random">RandomRecord</string>
     <string name="download_data">downloadData</string>
     <string name="insert_data">insertData</string>
+    <string name="download_topic">downloadTopic</string>
+    <string name="upload_topic_record">uploadTopicRecord</string>
+    <string name="download_topic_record">downloadTopicRecord</string>
 </resources>

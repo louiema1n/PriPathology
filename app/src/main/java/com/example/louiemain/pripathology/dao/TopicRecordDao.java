@@ -9,8 +9,13 @@ import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
+import com.example.louiemain.pripathology.domain.TopicRecord;
 import com.example.louiemain.pripathology.utils.DataBaseHelper;
 import com.example.louiemain.pripathology.utils.SharedPreferencesUtil;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Pragram: PriPathology
@@ -58,6 +63,67 @@ public class TopicRecordDao {
         }
         database.close();
         return null;
+    }
+
+    /**
+     * 获取所有答题记录
+     *
+     * @return
+     */
+    public String getAllTopicRecord() {
+        intiDataBaseHelper();
+        // 得到数据库操作对象-读取模式
+        database = helper.getReadableDatabase();
+        try {
+            Cursor cursor = database.query(TABLE_TOPIC_RECORD,
+                    new String[]{"id", "name", "number", "rightAnswer", "time", "selectAnswer", "target"},
+                    null,
+                    null,
+                    null,
+                    null,
+                    null);
+            return cursor2JsonString(cursor);
+        } catch (CursorIndexOutOfBoundsException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "未查询到数据，请先同步远程数据库。", Toast.LENGTH_SHORT).show();
+        }
+        database.close();
+        return null;
+    }
+
+    private String cursor2JsonString(Cursor cursor) {
+        cursor.moveToFirst();
+        TopicRecord topicRecord;
+        List<TopicRecord> topicRecords = new ArrayList<>();
+        StringBuffer sb = new StringBuffer();
+        if (cursor != null) {
+            // cursor遍历
+            while (!cursor.isAfterLast()) {
+                topicRecord = new TopicRecord();
+
+                topicRecord.setName(cursor.getString(cursor.getColumnIndex("name")));
+                topicRecord.setNumber(cursor.getInt(cursor.getColumnIndex("number")));
+                topicRecord.setRightAnswer(cursor.getString(cursor.getColumnIndex("rightAnswer")));
+                topicRecord.setTime(new Timestamp(cursor.getLong(cursor.getColumnIndex("time"))));
+                topicRecord.setSelectAnswer(cursor.getString(cursor.getColumnIndex("selectAnswer")));
+                topicRecord.setTarget(cursor.getInt(cursor.getColumnIndex("target")));
+
+                topicRecords.add(topicRecord);
+                cursor.moveToNext();
+            }
+        }
+        int size = topicRecords.size();
+        if (topicRecords != null && size > 0) {
+            sb.append("[");
+            for (int i = 0; i < size; i++) {
+                sb.append(topicRecords.get(i));
+                if (i < size - 1) {
+                    sb.append(",");
+                }
+            }
+            sb.append("]");
+        }
+        return sb.toString();
     }
 
     private void intiDataBaseHelper() {
