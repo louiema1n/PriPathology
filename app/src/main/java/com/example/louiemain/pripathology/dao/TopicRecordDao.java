@@ -12,6 +12,9 @@ import android.widget.Toast;
 import com.example.louiemain.pripathology.domain.TopicRecord;
 import com.example.louiemain.pripathology.utils.DataBaseHelper;
 import com.example.louiemain.pripathology.utils.SharedPreferencesUtil;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -33,9 +36,12 @@ public class TopicRecordDao {
     private Context context;
     private Integer databaseVer;
 
+    private SharedPreferencesUtil sharedPreferencesUtil;
+    
     public TopicRecordDao(Context context) {
         this.context = context;
-        databaseVer = new SharedPreferencesUtil(context).getDatabaseVer();
+        sharedPreferencesUtil = new SharedPreferencesUtil(context);
+        databaseVer = sharedPreferencesUtil.getDatabaseVer();
     }
 
     /**
@@ -70,15 +76,17 @@ public class TopicRecordDao {
      *
      * @return
      */
-    public String getAllTopicRecord() {
+    public String getAllUploadedTopicRecord() {
         intiDataBaseHelper();
+        // 获取已经上传的最大id
+        Integer maxId = sharedPreferencesUtil.getUploadedMaxId();
         // 得到数据库操作对象-读取模式
         database = helper.getReadableDatabase();
         try {
             Cursor cursor = database.query(TABLE_TOPIC_RECORD,
                     new String[]{"id", "name", "number", "rightAnswer", "time", "selectAnswer", "target"},
-                    null,
-                    null,
+                    "id > ?",
+                    new String[]{String.valueOf(maxId)},
                     null,
                     null,
                     null);
@@ -130,13 +138,18 @@ public class TopicRecordDao {
         helper = new DataBaseHelper(context, "topic", null, databaseVer);
     }
 
-    public int getMaxSelectedId() {
+    public int getMaxSelectedId(int target) {
         intiDataBaseHelper();
         // 得到数据库操作对象-读取模式
         database = helper.getReadableDatabase();
         try {
-            Cursor cursor = database.rawQuery("select max(id) from " + TABLE_TOPIC_RECORD + " where target = ?",
-                    new String[]{String.valueOf(0)});
+            Cursor cursor;
+            if (target == 0) {
+                cursor = database.rawQuery("select max(id) from " + TABLE_TOPIC_RECORD + " where target = ?",
+                        new String[]{String.valueOf(target)});
+            } else {
+                cursor = database.rawQuery("select max(id) from " + TABLE_TOPIC_RECORD, null);
+            }
             cursor.moveToFirst();
             if (cursor != null) {
                 int id = cursor.getInt(cursor.getColumnIndex("max(id)"));
@@ -155,5 +168,48 @@ public class TopicRecordDao {
         database = helper.getWritableDatabase();
         database.insert(TABLE_TOPIC_RECORD, null, values);
         database.close();
+    }
+
+    public String downloadData(String result) {
+        if (result != null || result != "") {
+
+        } else {
+            // 升级数据库
+            sharedPreferencesUtil.writeDatabaseVer(2);
+            // 获取数据库操作对象
+            helper = new DataBaseHelper(context, "topic", null, sharedPreferencesUtil.getDatabaseVer());
+
+            //获得SQLiteDatabase对象，读写模式
+            database = helper.getWritableDatabase();
+
+            database.beginTransaction();
+            //ContentValues类似HashMap，区别是ContentValues只能存简单数据类型，不能存对象
+            try {
+                JSONArray jsonArray = new JSONArray(result);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    ContentValues values = new ContentValues();
+                    values.put("name", jsonObject.optString("name"));
+                    values.put("number", jsonObject.optString("number"));
+                    values.put("rightAnswer", jsonObject.optString("rightAnswer"));
+                    values.put("time", jsonObject.optString("time"));
+                    values.put("selectAnswer", jsonObject.optString("selectAnswer"));
+                    values.put("target", jsonObject.optString("target"));
+
+                    database.insert(TABLE_TOPIC_RECORD, null, values);
+                }
+                // 设置事务成功
+                database.setTransactionSuccessful();
+                return "成功插入" + jsonArray.length() + "条数据。";
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return null;
+            } finally {
+                // 结束事务
+                database.endTransaction();
+                database.close();
+            }
+        }
+        return null;
     }
 }

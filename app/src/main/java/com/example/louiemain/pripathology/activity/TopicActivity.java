@@ -37,7 +37,7 @@ public class TopicActivity extends com.example.louiemain.pripathology.activity.b
         tag = getIntent().getStringExtra("tag");
         if (tag.equals("order")) {
             // 查询当前已记录的最大已做题目id
-            id = new TopicRecordDao(this).getMaxSelectedId() + 1;
+            id = new TopicRecordDao(this).getMaxSelectedId(0) + 1;
             if (id == 0) {
                 id = 1;
             }

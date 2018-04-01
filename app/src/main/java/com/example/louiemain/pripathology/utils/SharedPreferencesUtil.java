@@ -37,11 +37,21 @@ public class SharedPreferencesUtil {
         editor.commit();
     }
 
+    public void writeUploadedMaxId(Integer maxId) {
+        // 写入文件
+        editor.putInt("uploadedMaxId", maxId);
+        // 提交
+        editor.commit();
+    }
+
     public Integer getSyncDataState() {
         return context.getSharedPreferences("sys_arg", 0).getInt("syncDataState", 0);
     }
+    public Integer getUploadedMaxId() {
+        return context.getSharedPreferences("sys_arg", 0).getInt("uploadedMaxId", 0);
+    }
 
     public Integer getDatabaseVer() {
-        return context.getSharedPreferences("sys_arg", 0).getInt("databaseVer", 0);
+        return context.getSharedPreferences("sys_arg", 0).getInt("databaseVer", 1);
     }
 }

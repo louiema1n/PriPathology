@@ -136,10 +136,10 @@ public class MinePager extends BasePager {
                     }
                     break;
                 case R.id.cv_upload_topic_record:
-                    new HttpUtil(context).uploadTopicRecord(new TopicRecordDao(context).getAllTopicRecord());
+                    new HttpUtil(context).uploadTopicRecord(new TopicRecordDao(context).getAllUploadedTopicRecord());
                     break;
                 case R.id.cv_download_topic_record:
-
+                    new HttpUtil(context).downloadTopicRecord();
                     break;
                 case R.id.cv_order_record:
                     intent.putExtra("tag", "order");
