@@ -76,7 +76,8 @@ public class TopicRecordActivity extends BaseAppCompatActivity {
                 topicRecord.setName(cursor.getString(cursor.getColumnIndex("name")));
                 topicRecord.setNumber(cursor.getInt(cursor.getColumnIndex("number")));
                 topicRecord.setRightAnswer(cursor.getString(cursor.getColumnIndex("rightAnswer")));
-                topicRecord.setTime(new Timestamp(cursor.getLong(cursor.getColumnIndex("time"))));
+                long time = cursor.getLong(cursor.getColumnIndex("time"));
+                topicRecord.setTime(new Timestamp(time));
                 topicRecord.setSelectAnswer(cursor.getString(cursor.getColumnIndex("selectAnswer")));
                 topicRecord.setTarget(cursor.getInt(cursor.getColumnIndex("target")));
 

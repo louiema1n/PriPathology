@@ -12,11 +12,13 @@ import android.widget.Toast;
 import com.example.louiemain.pripathology.domain.TopicRecord;
 import com.example.louiemain.pripathology.utils.DataBaseHelper;
 import com.example.louiemain.pripathology.utils.SharedPreferencesUtil;
+import com.example.louiemain.pripathology.utils.TimeUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +44,7 @@ public class TopicRecordDao {
         this.context = context;
         sharedPreferencesUtil = new SharedPreferencesUtil(context);
         databaseVer = sharedPreferencesUtil.getDatabaseVer();
+        this.helper = new DataBaseHelper(context, "topic", null, databaseVer);
     }
 
     /**
@@ -51,7 +54,6 @@ public class TopicRecordDao {
      * @return
      */
     public Cursor getCursorByTarget(int target) {
-        intiDataBaseHelper();
         // 得到数据库操作对象-读取模式
         database = helper.getReadableDatabase();
         try {
@@ -77,7 +79,6 @@ public class TopicRecordDao {
      * @return
      */
     public String getAllUploadedTopicRecord() {
-        intiDataBaseHelper();
         // 获取已经上传的最大id
         Integer maxId = sharedPreferencesUtil.getUploadedMaxId();
         // 得到数据库操作对象-读取模式
@@ -134,12 +135,8 @@ public class TopicRecordDao {
         return sb.toString();
     }
 
-    private void intiDataBaseHelper() {
-        helper = new DataBaseHelper(context, "topic", null, databaseVer);
-    }
 
     public int getMaxSelectedId(int target) {
-        intiDataBaseHelper();
         // 得到数据库操作对象-读取模式
         database = helper.getReadableDatabase();
         try {
@@ -164,18 +161,17 @@ public class TopicRecordDao {
     }
 
     public void saveTopicRecord(ContentValues values) {
-        intiDataBaseHelper();
         database = helper.getWritableDatabase();
         database.insert(TABLE_TOPIC_RECORD, null, values);
         database.close();
     }
 
-    public String downloadData(String result) {
-        if (result != null || result != "") {
-
+    public String insertTopicRecord(String result) {
+        if (result == null || result == "") {
+            return null;
         } else {
             // 升级数据库
-            sharedPreferencesUtil.writeDatabaseVer(2);
+            sharedPreferencesUtil.writeDatabaseVer(++databaseVer);
             // 获取数据库操作对象
             helper = new DataBaseHelper(context, "topic", null, sharedPreferencesUtil.getDatabaseVer());
 
@@ -192,7 +188,7 @@ public class TopicRecordDao {
                     values.put("name", jsonObject.optString("name"));
                     values.put("number", jsonObject.optString("number"));
                     values.put("rightAnswer", jsonObject.optString("rightAnswer"));
-                    values.put("time", jsonObject.optString("time"));
+                    values.put("time", new TimeUtil().formatTime(jsonObject.optString("time")));
                     values.put("selectAnswer", jsonObject.optString("selectAnswer"));
                     values.put("target", jsonObject.optString("target"));
 
@@ -200,8 +196,11 @@ public class TopicRecordDao {
                 }
                 // 设置事务成功
                 database.setTransactionSuccessful();
-                return "成功插入" + jsonArray.length() + "条数据。";
+                return "成功更新" + jsonArray.length() + "条答题记录。";
             } catch (JSONException e) {
+                e.printStackTrace();
+                return null;
+            } catch (ParseException e) {
                 e.printStackTrace();
                 return null;
             } finally {
@@ -210,6 +209,5 @@ public class TopicRecordDao {
                 database.close();
             }
         }
-        return null;
     }
 }

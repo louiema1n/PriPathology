@@ -57,7 +57,10 @@ public class MainActivity extends BaseAppCompatActivity {
         iniView();
 
         // 初始化数据库版本
-        new SharedPreferencesUtil(this).writeDatabaseVer(1);
+        SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(this);
+        if (sharedPreferencesUtil.getDatabaseVer() == null) {
+            sharedPreferencesUtil.writeDatabaseVer(1);
+        }
     }
 
     private void iniData() {

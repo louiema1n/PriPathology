@@ -54,6 +54,9 @@ public class HttpUtil {
 
     private SharedPreferencesUtil sharedPreferencesUtil;
 
+    private String httpResource = "";
+
+
     public HttpUtil(Context context) {
         this.context = context;
         sharedPreferencesUtil = new SharedPreferencesUtil(context);
@@ -86,7 +89,7 @@ public class HttpUtil {
                     try {
                         String encodedUp = URLEncoder.encode(up, "UTF-8");
 //                    url = new URL("http://192.168.1.103:8085/tr/add?json=" + encodedUp);
-                        url = new URL("192.168.110.94:8085/tr/add?json=" + encodedUp);
+                        url = new URL("http://192.168.110.94:8085/tr/add?json=" + encodedUp);
                         conn = (HttpURLConnection) url.openConnection();
                         conn.setRequestMethod("POST");
                         conn.setDoInput(true);
@@ -141,15 +144,7 @@ public class HttpUtil {
      */
     public void downloadTopicRecord() {
 //        String resource = getHttpResource("http://192.168.1.103:8085/tr/all");
-        String resource = getHttpResource("http://192.168.110.94:8085/tr/all");
-
-        // 2.insert into local database
-        responseContent = new TopicRecordDao(context).downloadData(result);
-        if (responseContent == null) {
-            handler.sendEmptyMessage(DOWN_TR_FAILURE);
-        } else {
-            handler.sendEmptyMessage(DOWN_TR_SUCCESS);
-        }
+        getHttpResource("http://192.168.110.94:8085/tr/all", "topicRecord");
     }
 
     /**
@@ -157,12 +152,10 @@ public class HttpUtil {
      * @param urlPath
      * @return
      */
-    public String getHttpResource(String urlPath) {
+    public void getHttpResource(String urlPath, String target) {
         handler.sendEmptyMessage(SHOW_PROGRESS_DIALOG);
-
         final String up = urlPath;
-        final StringBuilder sb = null;
-
+        final String tg = target;
         new Thread() {
             @Override
             public void run() {
@@ -183,18 +176,37 @@ public class HttpUtil {
                     conn.setReadTimeout(3000);
 
                     handler.sendEmptyMessage(DOWNLOAD_DATA_HALF);
-                    String result = null;
+                    String str = "";
                     if (conn.getResponseCode() == 200) {
                         // 连接成功
                         InputStream is = conn.getInputStream();
                         BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                        while ((result = br.readLine()) != null) {
+                        while ((str = br.readLine()) != null) {
                             // 还有数据
-                            sb.append(result);
+                            httpResource += str;
                         }
                         br.close();
                         is.close();
                         handler.sendEmptyMessage(DOWNLOAD_DATA_DONE);
+                        if (httpResource != null || httpResource != "") {
+                            if (tg.equals("topic")) {
+                                // 2.insert into local database
+                                String s = new InitData(context).insetTopic(httpResource);
+                                if (s == null) {
+                                    handler.sendEmptyMessage(DOWN_TOPIC_FAILURE);
+                                } else {
+                                    handler.sendEmptyMessage(DOWN_TOPIC_SUCCESS);
+                                }
+                            } else {
+                                // 2.insert into local database
+                                responseContent = new TopicRecordDao(context).insertTopicRecord(httpResource);
+                                if (responseContent == null) {
+                                    handler.sendEmptyMessage(DOWN_TR_FAILURE);
+                                } else {
+                                    handler.sendEmptyMessage(DOWN_TR_SUCCESS);
+                                }
+                            }
+                        }
                     }
                 } catch (SocketTimeoutException e) {
                     // 超时处理
@@ -213,7 +225,6 @@ public class HttpUtil {
 
             }
         }.start();
-        return sb.toString();
     }
 
     /**
@@ -224,15 +235,7 @@ public class HttpUtil {
      * @date Created on 2018/3/20 20:10
      */
     public void downloadTopic() {
-        String resource = getHttpResource("http://192.168.110.94:8085/exam/all");
-        //        getHttpResource("http://192.168.1.103:8085/exam/all");
-        // 2.insert into local database
-        String s = new InitData(context).insetTopic(resource);
-        if (s == null) {
-            handler.sendEmptyMessage(DOWN_TOPIC_FAILURE);
-        } else {
-            handler.sendEmptyMessage(DOWN_TOPIC_SUCCESS);
-        }
+        getHttpResource("http://192.168.110.94:8085/exam/all", "topic");
     }
 
     private Handler handler = new Handler() {
@@ -243,14 +246,14 @@ public class HttpUtil {
                 case DOWN_TOPIC_SUCCESS:
                     progressDialog.setProgress(100);
                     progressDialog.dismiss();
-                    Toast.makeText(context, "成功更新" + result + "条题目数据。", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "成功同步" + new SharedPreferencesUtil(context).getSyncDataState() + "条题目数据。", Toast.LENGTH_SHORT).show();
                     break;
                 case DOWN_TOPIC_FAILURE:
-                    Toast.makeText(context, "数据更新失败，线程被终止。请退出程序后重试。", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "下载题目数据失败，请重试。", Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                     break;
                 case DOWN_TR_FAILURE:
-                    Toast.makeText(context, "插入数据失败！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "更新答题记录失败！", Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                     break;
                 case DOWN_TR_SUCCESS:
@@ -294,7 +297,6 @@ public class HttpUtil {
                     progressDialog.show();
                     break;
             }
-            handler.removeCallbacksAndMessages(null);
         }
     };
 
