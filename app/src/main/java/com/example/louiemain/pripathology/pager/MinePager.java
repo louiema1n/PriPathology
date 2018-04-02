@@ -43,15 +43,6 @@ import java.util.TimeZone;
 public class MinePager extends BasePager {
 
     private static final int COUNT_DOWN = 4;
-    private static final int DOWNLOAD_DATA_HALF = 50;
-    private static final int DOWNLOAD_DATA_DONE = 100;
-
-    private static final int LINK_NETWORK_FAIL = 0;
-    private static final int UPDATE_SUCCESS = 1;
-    private static final int SOCKET_TIMEOUT = 2;
-    private static final int UPDATE_FAILURE = 3;
-
-    private ProgressDialog progressDialog;
 
     private CardView cv_order_record;
     private CardView cv_random_record;
@@ -130,7 +121,7 @@ public class MinePager extends BasePager {
                 case R.id.cv_download_topic:
                     if (sharedPreferencesUtil.getSyncDataState() == 0) {
                         // 上次失败
-                        downloadTopic();
+                        new HttpUtil(context).downloadTopic();
                     } else {
                         Toast.makeText(context, "已经成功同步过数据库，无需执行此操作。", Toast.LENGTH_SHORT).show();
                     }
@@ -153,117 +144,11 @@ public class MinePager extends BasePager {
         }
     }
 
-    /**
-     * @param
-     * @return void
-     * @description 从服务器更新数据到本地数据库
-     * @author louiemain
-     * @date Created on 2018/3/20 20:10
-     */
-    private void downloadTopic() {
-        progressDialog = getProgressDialog(100, context.getString(R.string.sync_database));
-        progressDialog.setMessage(context.getString(R.string.download_data));
-        progressDialog.show();
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-
-                // 解决 Can't create handler inside thread that has not called Looper.prepare()
-                Looper.prepare();
-
-                // 1.download data from server
-                HttpURLConnection conn = null;
-                URL url = null;
-                String result = "";
-
-                try {
-//                        url = new URL("http://192.168.110.94/blcj/get/" + i);
-                    url = new URL("http://192.168.1.103:8085/exam/all");
-                    conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("GET");
-                    conn.setConnectTimeout(3000);
-                    conn.setReadTimeout(3000);
-
-                    handler.sendEmptyMessage(DOWNLOAD_DATA_HALF);
-
-                    if (conn.getResponseCode() == 200) {
-                        // 连接成功
-                        InputStream is = conn.getInputStream();
-                        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                        String str = null;
-                        while ((str = br.readLine()) != null) {
-                            // 还有数据
-                            result += str;
-                        }
-                        br.close();
-                        is.close();
-
-                        handler.sendEmptyMessage(DOWNLOAD_DATA_DONE);
-
-                        // 2.insert into local database
-                        String s = new InitData(context).insetDatabase(result);
-                        if (s == null) {
-                            handler.sendEmptyMessage(UPDATE_FAILURE);
-                        } else {
-                            handler.sendEmptyMessage(UPDATE_SUCCESS);
-                        }
-                    }
-                } catch (SocketTimeoutException e) {
-                    // 超时处理
-                    handler.sendEmptyMessage(SOCKET_TIMEOUT);
-                    e.printStackTrace();
-                } catch (UnknownHostException e) {
-                    // 异常主机处理
-                    handler.sendEmptyMessage(LINK_NETWORK_FAIL);
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    // 关闭连接
-                    conn.disconnect();
-                }
-
-            }
-
-        }.start();
-    }
-
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case LINK_NETWORK_FAIL:
-                    Toast.makeText(context, "连接服务器失败，请稍后重试。", Toast.LENGTH_SHORT).show();
-                    progressDialog.dismiss();
-                    sharedPreferencesUtil.writeSyncDataState(0);
-                    break;
-                case UPDATE_SUCCESS:
-                    Toast.makeText(context, "数据更新成功。", Toast.LENGTH_SHORT).show();
-                    progressDialog.setProgress(100);
-                    progressDialog.dismiss();
-                    sharedPreferencesUtil.writeSyncDataState(1);
-                    break;
-                case UPDATE_FAILURE:
-                    Toast.makeText(context, "数据更新失败，线程被终止。请退出程序后重试。", Toast.LENGTH_SHORT).show();
-                    progressDialog.dismiss();
-                    sharedPreferencesUtil.writeSyncDataState(0);
-                    break;
-                case SOCKET_TIMEOUT:
-                    Toast.makeText(context, "服务器连接超时，请稍后重试。", Toast.LENGTH_SHORT).show();
-                    progressDialog.dismiss();
-                    sharedPreferencesUtil.writeSyncDataState(0);
-                    break;
-                case DOWNLOAD_DATA_HALF:
-                    progressDialog.setProgress(25);
-                    progressDialog.setSecondaryProgress(50);
-                    break;
-                case DOWNLOAD_DATA_DONE:
-                    progressDialog.setProgress(50);
-                    progressDialog.setMessage(context.getString(R.string.insert_data));
-                    progressDialog.setSecondaryProgress(100);
-                    break;
                 case COUNT_DOWN:
                     tv_count_down.setText("距离考试还有" + calcCountDown());
                     removeMessages(COUNT_DOWN);
@@ -272,33 +157,4 @@ public class MinePager extends BasePager {
             }
         }
     };
-
-    /**
-     * @param max
-     * @param title
-     * @return android.app.ProgressDialog
-     * @description 创建一个进度条
-     * @author louiemain
-     * @date Created on 2018/3/20 20:22
-     */
-    private ProgressDialog getProgressDialog(int max, String title) {
-        ProgressDialog progressDialog = new ProgressDialog(context);
-        progressDialog.setMax(max);
-        progressDialog.setCancelable(false);     // 设置点击back键取消
-        progressDialog.setCanceledOnTouchOutside(false); // 设置是否点击dialog外其他区域取消进度条
-        progressDialog.setTitle(title);
-        progressDialog.incrementProgressBy(0);
-        progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // 取消进度条
-                dialog.dismiss();
-            }
-        });
-
-        // 条形进度条
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-
-        return progressDialog;
-    }
 }

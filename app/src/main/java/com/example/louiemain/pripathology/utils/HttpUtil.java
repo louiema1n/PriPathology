@@ -29,19 +29,22 @@ import java.net.*;
  **/
 public class HttpUtil {
 
-    private static final int UPDATE_SUCCESS = 1;
-    private static final int UPDATE_FAILURE = 0;
-    private static final int SOCKET_TIMEOUT = 3;
-    private static final int LINK_NETWORK_FAIL = 4;
-    private static final int EMPTY_DATA = 5;
+    private static final int DOWN_TOPIC_SUCCESS = 1;
+    private static final int DOWN_TOPIC_FAILURE = 2;
+    private static final int DOWN_TR_FAILURE = 3;
+    private static final int DOWN_TR_SUCCESS = 4;
+    private static final int UPLOAD_TR_SUCCESS = 5;
+    private static final int UPLOAD_TR_FAILURE = 6;
+    private static final int SOCKET_TIMEOUT = 7;
+    private static final int LINK_NETWORK_FAIL = 8;
+    private static final int EMPTY_DATA = 9;
     private static final int DOWNLOAD_DATA_HALF = 50;
     private static final int DOWNLOAD_DATA_DONE = 100;
-    private static final int INSERT_FAILURE = 6;
-    private static final int INSERT_SUCCESS = 7;
 
     private HttpURLConnection conn = null;
     private URL url = null;
     private String result = "";
+
     // 插入数据库响应内容
     private String responeContent;
 
@@ -79,9 +82,9 @@ public class HttpUtil {
                 Looper.prepare();
 
                 try {
-//                        url = new URL("http://192.168.110.94/blcj/get/" + i);
                     String encodedUp = URLEncoder.encode(up, "UTF-8");
-                    url = new URL("http://192.168.1.103:8085/tr/add?json=" + encodedUp);
+//                    url = new URL("http://192.168.1.103:8085/tr/add?json=" + encodedUp);
+                    url = new URL("192.168.110.94:8085/tr/add?json=" + encodedUp);
                     conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setDoInput(true);
@@ -105,9 +108,9 @@ public class HttpUtil {
                         is.close();
 
                         if (result != null) {
-                            handler.sendEmptyMessage(UPDATE_SUCCESS);
+                            handler.sendEmptyMessage(UPLOAD_TR_SUCCESS);
                         } else {
-                            handler.sendEmptyMessage(UPDATE_FAILURE);
+                            handler.sendEmptyMessage(UPLOAD_TR_FAILURE);
                         }
                     }
                 } catch (SocketTimeoutException e) {
@@ -152,8 +155,8 @@ public class HttpUtil {
                 String result = "";
 
                 try {
-//                        url = new URL("http://192.168.110.94/blcj/get/" + i);
-                    url = new URL("http://192.168.1.103:8085/tr/all");
+//                    url = new URL("http://192.168.1.103:8085/tr/all");
+                    url = new URL("http://192.168.110.94:8085/tr/all");
                     conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("GET");
                     conn.setConnectTimeout(3000);
@@ -178,9 +181,85 @@ public class HttpUtil {
                         // 2.insert into local database
                         responeContent = new TopicRecordDao(context).downloadData(result);
                         if (responeContent == null) {
-                            handler.sendEmptyMessage(INSERT_FAILURE);
+                            handler.sendEmptyMessage(DOWN_TR_FAILURE);
                         } else {
-                            handler.sendEmptyMessage(INSERT_SUCCESS);
+                            handler.sendEmptyMessage(DOWN_TR_SUCCESS);
+                        }
+                    }
+                } catch (SocketTimeoutException e) {
+                    // 超时处理
+                    handler.sendEmptyMessage(SOCKET_TIMEOUT);
+                    e.printStackTrace();
+                } catch (UnknownHostException e) {
+                    // 异常主机处理
+                    handler.sendEmptyMessage(LINK_NETWORK_FAIL);
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    // 关闭连接
+                    conn.disconnect();
+                }
+
+            }
+
+        }.start();
+    }
+
+    /**
+     * @param
+     * @return void
+     * @description 从服务器更新数据到本地数据库
+     * @author louiemain
+     * @date Created on 2018/3/20 20:10
+     */
+    public void downloadTopic() {
+        progressDialog = getProgressDialog(100, context.getString(R.string.sync_database));
+        progressDialog.setMessage(context.getString(R.string.download_data));
+        progressDialog.show();
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+
+                // 解决 Can't create handler inside thread that has not called Looper.prepare()
+                Looper.prepare();
+
+                // 1.download data from server
+                HttpURLConnection conn = null;
+                URL url = null;
+                String result = "";
+
+                try {
+                    url = new URL("http://192.168.110.94:8085/exam/all");
+//                    url = new URL("http://192.168.1.103:8085/exam/all");
+                    conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setConnectTimeout(3000);
+                    conn.setReadTimeout(3000);
+
+                    handler.sendEmptyMessage(DOWNLOAD_DATA_HALF);
+
+                    if (conn.getResponseCode() == 200) {
+                        // 连接成功
+                        InputStream is = conn.getInputStream();
+                        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                        String str = null;
+                        while ((str = br.readLine()) != null) {
+                            // 还有数据
+                            result += str;
+                        }
+                        br.close();
+                        is.close();
+
+                        handler.sendEmptyMessage(DOWNLOAD_DATA_DONE);
+
+                        // 2.insert into local database
+                        String s = new InitData(context).insetDatabase(result);
+                        if (s == null) {
+                            handler.sendEmptyMessage(DOWN_TOPIC_FAILURE);
+                        } else {
+                            handler.sendEmptyMessage(DOWN_TOPIC_SUCCESS);
                         }
                     }
                 } catch (SocketTimeoutException e) {
@@ -208,18 +287,36 @@ public class HttpUtil {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case LINK_NETWORK_FAIL:
-                    Toast.makeText(context, "连接服务器失败，请稍后重试。", Toast.LENGTH_SHORT).show();
+                case DOWN_TOPIC_SUCCESS:
+                    progressDialog.setProgress(100);
+                    progressDialog.dismiss();
+                    Toast.makeText(context, "成功更新" + result + "条题目数据。", Toast.LENGTH_SHORT).show();
+                    break;
+                case DOWN_TOPIC_FAILURE:
+                    Toast.makeText(context, "数据更新失败，线程被终止。请退出程序后重试。", Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                     break;
-                case UPDATE_SUCCESS:
+                case DOWN_TR_FAILURE:
+                    Toast.makeText(context, "插入数据失败！", Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                    break;
+                case DOWN_TR_SUCCESS:
+                    Toast.makeText(context, responeContent, Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                    sharedPreferencesUtil.writeUploadedMaxId(new TopicRecordDao(context).getMaxSelectedId(1));
+                    break;
+                case UPLOAD_TR_SUCCESS:
                     progressDialog.setProgress(100);
                     progressDialog.dismiss();
                     Toast.makeText(context, "成功上传" + result + "条答题记录。", Toast.LENGTH_SHORT).show();
                     sharedPreferencesUtil.writeUploadedMaxId(new TopicRecordDao(context).getMaxSelectedId(1));
                     break;
-                case UPDATE_FAILURE:
-                    Toast.makeText(context, "数据更新失败，线程被终止。请退出程序后重试。", Toast.LENGTH_SHORT).show();
+                case UPLOAD_TR_FAILURE:
+                    Toast.makeText(context, "上传数据失败！", Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                    break;
+                case LINK_NETWORK_FAIL:
+                    Toast.makeText(context, "连接服务器失败，请稍后重试。", Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                     break;
                 case SOCKET_TIMEOUT:
@@ -238,14 +335,7 @@ public class HttpUtil {
                     progressDialog.setMessage(context.getString(R.string.insert_data));
                     progressDialog.setSecondaryProgress(100);
                     break;
-                case INSERT_FAILURE:
-                    Toast.makeText(context, "插入数据失败！", Toast.LENGTH_SHORT).show();
-                    progressDialog.dismiss();
-                    break;
-                case INSERT_SUCCESS:
-                    Toast.makeText(context, responeContent, Toast.LENGTH_SHORT).show();
-                    progressDialog.dismiss();
-                    break;
+
             }
         }
     };
