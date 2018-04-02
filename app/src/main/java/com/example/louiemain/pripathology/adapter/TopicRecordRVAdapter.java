@@ -34,8 +34,6 @@ public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     private OnRVItemClickListener onRVItemClickListener;
 
-    private TopicRecord topicRecord;
-
     public TopicRecordRVAdapter(List<TopicRecord> topicRecords) {
         this.topicRecords = topicRecords;
         rightPositions = new HashMap<>();
@@ -64,9 +62,9 @@ public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.View
      * @param position
      */
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         TRViewHolder trViewHolder = (TRViewHolder) holder;
-        topicRecord = topicRecords.get(position);
+        TopicRecord topicRecord = topicRecords.get(position);
         // 绑定数据
         trViewHolder.tv_record_number.setText(topicRecord.getNumber() + "");
         trViewHolder.tv_record_name.setText(topicRecord.getName());
@@ -80,7 +78,7 @@ public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.View
         trViewHolder.ll_item.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onRVItemClickListener.onRVItemClick(topicRecord);
+                onRVItemClickListener.onRVItemClick(topicRecords.get(position));
             }
         });
 

@@ -79,7 +79,6 @@ public class TopicRecordActivity extends BaseAppCompatActivity {
         List<TopicRecord> topicRecords = new ArrayList<>();
         TopicRecord topicRecord;
 
-
         Cursor cursor = new TopicRecordDao(this).getCursorByTarget(tag.equals("order") ? 0 : 1);
         // cursor置顶
         cursor.moveToFirst();
