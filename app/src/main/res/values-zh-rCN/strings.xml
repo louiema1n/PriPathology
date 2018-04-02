@@ -17,4 +17,5 @@
     <string name="download_topic">下载题目数据</string>
     <string name="upload_topic_record">上传答题记录</string>
     <string name="download_topic_record">下载答题记录</string>
+    <string name="view_topic_record">查看答题记录</string>
 </resources>

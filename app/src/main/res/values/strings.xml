@@ -17,4 +17,5 @@
     <string name="download_topic">downloadTopic</string>
     <string name="upload_topic_record">uploadTopicRecord</string>
     <string name="download_topic_record">downloadTopicRecord</string>
+    <string name="view_topic_record">viewTopicRecord</string>
 </resources>
