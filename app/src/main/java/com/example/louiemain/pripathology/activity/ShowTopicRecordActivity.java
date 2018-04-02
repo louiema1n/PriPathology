@@ -61,15 +61,14 @@ public class ShowTopicRecordActivity extends com.example.louiemain.pripathology.
         for (int i = 0; i < rg_option.getChildCount(); i++) {
             rg_option.getChildAt(i).setEnabled(false);
         }
-        // 显示正确答案
-        RadioButton btnRight = (RadioButton) rg_option.getChildAt(getPosition(topic.getAnser()));
-        // 不能使用button.setTextColor(R.color.colorAccent);
-        btnRight.setTextColor(this.getResources().getColor(R.color.colorRbRight, null));
-
         // 显示错误答案
         RadioButton btnWrong = (RadioButton) rg_option.getChildAt(getPosition(topicRecord.getSelectAnswer()));
         // 不能使用button.setTextColor(R.color.colorAccent);
         btnWrong.setTextColor(this.getResources().getColor(R.color.colorAccent, null));
+
+        // 显示正确答案
+        RadioButton btnRight = (RadioButton) rg_option.getChildAt(getPosition(topic.getAnser()));
+        btnRight.setTextColor(this.getResources().getColor(R.color.colorRbRight, null));
     }
 
     /**
