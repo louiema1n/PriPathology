@@ -40,13 +40,14 @@ public class HttpUtil {
     private static final int EMPTY_DATA = 9;
     private static final int DOWNLOAD_DATA_HALF = 50;
     private static final int DOWNLOAD_DATA_DONE = 100;
+    private static final int SHOW_PROGRESS_DIALOG = 10;
 
     private HttpURLConnection conn = null;
     private URL url = null;
     private String result = "";
 
     // 插入数据库响应内容
-    private String responeContent;
+    private String responseContent;
 
     private ProgressDialog progressDialog;
     private Context context;
@@ -60,6 +61,7 @@ public class HttpUtil {
 
     /**
      * 上传答题记录
+     *
      * @param uploadData
      */
     public void uploadTopicRecord(String uploadData) {
@@ -69,68 +71,68 @@ public class HttpUtil {
             handler.sendEmptyMessage(EMPTY_DATA);
         } else {
 
-        // 获取进度条
-        progressDialog = getProgressDialog(100, context.getString(R.string.upload_topic_record));
-        progressDialog.show();
+            // 获取进度条
+            progressDialog = getProgressDialog(100, context.getString(R.string.upload_topic_record));
+            progressDialog.show();
 
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
+            new Thread() {
+                @Override
+                public void run() {
+                    super.run();
 
-                // 解决 Can't create handler inside thread that has not called Looper.prepare()
-                Looper.prepare();
+                    // 解决 Can't create handler inside thread that has not called Looper.prepare()
+                    Looper.prepare();
 
-                try {
-                    String encodedUp = URLEncoder.encode(up, "UTF-8");
+                    try {
+                        String encodedUp = URLEncoder.encode(up, "UTF-8");
 //                    url = new URL("http://192.168.1.103:8085/tr/add?json=" + encodedUp);
-                    url = new URL("192.168.110.94:8085/tr/add?json=" + encodedUp);
-                    conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setDoInput(true);
-                    conn.setDoOutput(true);
-                    conn.setUseCaches(false);
-                    // 设置文件类型
-                    conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                    conn.setConnectTimeout(3000);
-                    conn.setReadTimeout(3000);
+                        url = new URL("192.168.110.94:8085/tr/add?json=" + encodedUp);
+                        conn = (HttpURLConnection) url.openConnection();
+                        conn.setRequestMethod("POST");
+                        conn.setDoInput(true);
+                        conn.setDoOutput(true);
+                        conn.setUseCaches(false);
+                        // 设置文件类型
+                        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                        conn.setConnectTimeout(3000);
+                        conn.setReadTimeout(3000);
 
-                    if (conn.getResponseCode() == 200) {
-                        // 连接成功
-                        InputStream is = conn.getInputStream();
-                        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                        String str = null;
-                        while ((str = br.readLine()) != null) {
-                            // 还有数据
-                            result += str;
-                        }
-                        br.close();
-                        is.close();
+                        if (conn.getResponseCode() == 200) {
+                            // 连接成功
+                            InputStream is = conn.getInputStream();
+                            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                            String str = null;
+                            while ((str = br.readLine()) != null) {
+                                // 还有数据
+                                result += str;
+                            }
+                            br.close();
+                            is.close();
 
-                        if (result != null) {
-                            handler.sendEmptyMessage(UPLOAD_TR_SUCCESS);
-                        } else {
-                            handler.sendEmptyMessage(UPLOAD_TR_FAILURE);
+                            if (result != null) {
+                                handler.sendEmptyMessage(UPLOAD_TR_SUCCESS);
+                            } else {
+                                handler.sendEmptyMessage(UPLOAD_TR_FAILURE);
+                            }
                         }
+                    } catch (SocketTimeoutException e) {
+                        // 超时处理
+                        handler.sendEmptyMessage(SOCKET_TIMEOUT);
+                        e.printStackTrace();
+                    } catch (UnknownHostException e) {
+                        // 异常主机处理
+                        handler.sendEmptyMessage(LINK_NETWORK_FAIL);
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        // 关闭连接
+                        conn.disconnect();
                     }
-                } catch (SocketTimeoutException e) {
-                    // 超时处理
-                    handler.sendEmptyMessage(SOCKET_TIMEOUT);
-                    e.printStackTrace();
-                } catch (UnknownHostException e) {
-                    // 异常主机处理
-                    handler.sendEmptyMessage(LINK_NETWORK_FAIL);
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    // 关闭连接
-                    conn.disconnect();
+
                 }
 
-            }
-
-        }.start();
+            }.start();
         }
     }
 
@@ -138,9 +140,29 @@ public class HttpUtil {
      * 下载答题记录
      */
     public void downloadTopicRecord() {
-        progressDialog = getProgressDialog(100, context.getString(R.string.download_topic_record));
-        progressDialog.setMessage(context.getString(R.string.download_data));
-        progressDialog.show();
+//        String resource = getHttpResource("http://192.168.1.103:8085/tr/all");
+        String resource = getHttpResource("http://192.168.110.94:8085/tr/all");
+
+        // 2.insert into local database
+        responseContent = new TopicRecordDao(context).downloadData(result);
+        if (responseContent == null) {
+            handler.sendEmptyMessage(DOWN_TR_FAILURE);
+        } else {
+            handler.sendEmptyMessage(DOWN_TR_SUCCESS);
+        }
+    }
+
+    /**
+     * 获取HttpResource
+     * @param urlPath
+     * @return
+     */
+    public String getHttpResource(String urlPath) {
+        handler.sendEmptyMessage(SHOW_PROGRESS_DIALOG);
+
+        final String up = urlPath;
+        final StringBuilder sb = null;
+
         new Thread() {
             @Override
             public void run() {
@@ -152,39 +174,27 @@ public class HttpUtil {
                 // 1.download data from server
                 HttpURLConnection conn = null;
                 URL url = null;
-                String result = "";
 
                 try {
-//                    url = new URL("http://192.168.1.103:8085/tr/all");
-                    url = new URL("http://192.168.110.94:8085/tr/all");
+                    url = new URL(up);
                     conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("GET");
                     conn.setConnectTimeout(3000);
                     conn.setReadTimeout(3000);
 
                     handler.sendEmptyMessage(DOWNLOAD_DATA_HALF);
-
+                    String result = null;
                     if (conn.getResponseCode() == 200) {
                         // 连接成功
                         InputStream is = conn.getInputStream();
                         BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                        String str = null;
-                        while ((str = br.readLine()) != null) {
+                        while ((result = br.readLine()) != null) {
                             // 还有数据
-                            result += str;
+                            sb.append(result);
                         }
                         br.close();
                         is.close();
-
                         handler.sendEmptyMessage(DOWNLOAD_DATA_DONE);
-
-                        // 2.insert into local database
-                        responeContent = new TopicRecordDao(context).downloadData(result);
-                        if (responeContent == null) {
-                            handler.sendEmptyMessage(DOWN_TR_FAILURE);
-                        } else {
-                            handler.sendEmptyMessage(DOWN_TR_SUCCESS);
-                        }
                     }
                 } catch (SocketTimeoutException e) {
                     // 超时处理
@@ -202,8 +212,8 @@ public class HttpUtil {
                 }
 
             }
-
         }.start();
+        return sb.toString();
     }
 
     /**
@@ -214,72 +224,15 @@ public class HttpUtil {
      * @date Created on 2018/3/20 20:10
      */
     public void downloadTopic() {
-        progressDialog = getProgressDialog(100, context.getString(R.string.sync_database));
-        progressDialog.setMessage(context.getString(R.string.download_data));
-        progressDialog.show();
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-
-                // 解决 Can't create handler inside thread that has not called Looper.prepare()
-                Looper.prepare();
-
-                // 1.download data from server
-                HttpURLConnection conn = null;
-                URL url = null;
-                String result = "";
-
-                try {
-                    url = new URL("http://192.168.110.94:8085/exam/all");
-//                    url = new URL("http://192.168.1.103:8085/exam/all");
-                    conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("GET");
-                    conn.setConnectTimeout(3000);
-                    conn.setReadTimeout(3000);
-
-                    handler.sendEmptyMessage(DOWNLOAD_DATA_HALF);
-
-                    if (conn.getResponseCode() == 200) {
-                        // 连接成功
-                        InputStream is = conn.getInputStream();
-                        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                        String str = null;
-                        while ((str = br.readLine()) != null) {
-                            // 还有数据
-                            result += str;
-                        }
-                        br.close();
-                        is.close();
-
-                        handler.sendEmptyMessage(DOWNLOAD_DATA_DONE);
-
-                        // 2.insert into local database
-                        String s = new InitData(context).insetDatabase(result);
-                        if (s == null) {
-                            handler.sendEmptyMessage(DOWN_TOPIC_FAILURE);
-                        } else {
-                            handler.sendEmptyMessage(DOWN_TOPIC_SUCCESS);
-                        }
-                    }
-                } catch (SocketTimeoutException e) {
-                    // 超时处理
-                    handler.sendEmptyMessage(SOCKET_TIMEOUT);
-                    e.printStackTrace();
-                } catch (UnknownHostException e) {
-                    // 异常主机处理
-                    handler.sendEmptyMessage(LINK_NETWORK_FAIL);
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    // 关闭连接
-                    conn.disconnect();
-                }
-
-            }
-
-        }.start();
+        String resource = getHttpResource("http://192.168.110.94:8085/exam/all");
+        //        getHttpResource("http://192.168.1.103:8085/exam/all");
+        // 2.insert into local database
+        String s = new InitData(context).insetTopic(resource);
+        if (s == null) {
+            handler.sendEmptyMessage(DOWN_TOPIC_FAILURE);
+        } else {
+            handler.sendEmptyMessage(DOWN_TOPIC_SUCCESS);
+        }
     }
 
     private Handler handler = new Handler() {
@@ -301,7 +254,7 @@ public class HttpUtil {
                     progressDialog.dismiss();
                     break;
                 case DOWN_TR_SUCCESS:
-                    Toast.makeText(context, responeContent, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, responseContent, Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                     sharedPreferencesUtil.writeUploadedMaxId(new TopicRecordDao(context).getMaxSelectedId(1));
                     break;
@@ -335,8 +288,13 @@ public class HttpUtil {
                     progressDialog.setMessage(context.getString(R.string.insert_data));
                     progressDialog.setSecondaryProgress(100);
                     break;
-
+                case SHOW_PROGRESS_DIALOG:
+                    progressDialog = getProgressDialog(100, context.getString(R.string.sync_database));
+                    progressDialog.setMessage(context.getString(R.string.download_data));
+                    progressDialog.show();
+                    break;
             }
+            handler.removeCallbacksAndMessages(null);
         }
     };
 

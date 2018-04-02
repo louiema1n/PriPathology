@@ -40,7 +40,7 @@ public class InitData {
      * @author louiemain
      * @date Created on 2018/4/1 10:21
      */
-    public String insetDatabase(String result) {
+    public String insetTopic(String result) {
         // 获取数据库操作对象
         helper = new DataBaseHelper(context, "topic", null, new SharedPreferencesUtil(context).getDatabaseVer());
 
