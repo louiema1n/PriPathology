@@ -2,6 +2,7 @@ package com.example.louiemain.pripathology.domain;
 
 import com.example.louiemain.pripathology.utils.TimeUtil;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
@@ -11,7 +12,7 @@ import java.sql.Timestamp;
  * @Author: louiemain
  * @Created: 2018-03-29 16:10
  **/
-public class TopicRecord {
+public class TopicRecord implements Serializable {
     private int id;
     private String name;
     private int number;

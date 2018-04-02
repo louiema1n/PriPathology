@@ -1,10 +1,12 @@
 package com.example.louiemain.pripathology.activity;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.Toast;
 import com.example.louiemain.pripathology.R;
 import com.example.louiemain.pripathology.activity.base.BaseAppCompatActivity;
 import com.example.louiemain.pripathology.adapter.TopicRecordRVAdapter;
@@ -19,7 +21,7 @@ public class TopicRecordActivity extends BaseAppCompatActivity {
 
     private RecyclerView rv_container;
     private RecyclerView.LayoutManager layoutManager;
-    private RecyclerView.Adapter adapter;
+    private TopicRecordRVAdapter adapter;
 
     private String tag;
 
@@ -47,6 +49,19 @@ public class TopicRecordActivity extends BaseAppCompatActivity {
 
         List<TopicRecord> topicRecords = initTopicRecords();
         adapter = new TopicRecordRVAdapter(topicRecords);
+
+        // 设置item点击事件
+        adapter.setOnRVItemClickListener(new TopicRecordRVAdapter.OnRVItemClickListener() {
+            @Override
+            public void onRVItemClick(TopicRecord topicRecord) {
+                // 显示答题记录详情界面
+                Intent intent = new Intent(TopicRecordActivity.this, ShowTopicRecordActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("topic_record", topicRecord);
+                intent.putExtra("topic_record_bundle", bundle);
+                startActivity(intent);
+            }
+        });
 
         // 设置布局管理器
         rv_container.setLayoutManager(layoutManager);

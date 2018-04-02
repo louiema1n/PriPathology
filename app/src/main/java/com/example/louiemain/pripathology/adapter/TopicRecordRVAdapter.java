@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.example.louiemain.pripathology.R;
 import com.example.louiemain.pripathology.domain.TopicRecord;
@@ -30,6 +31,10 @@ public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     // 错误答案position集合
     private Map<Integer, TRViewHolder> rightPositions;
+
+    private OnRVItemClickListener onRVItemClickListener;
+
+    private TopicRecord topicRecord;
 
     public TopicRecordRVAdapter(List<TopicRecord> topicRecords) {
         this.topicRecords = topicRecords;
@@ -61,7 +66,7 @@ public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.View
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         TRViewHolder trViewHolder = (TRViewHolder) holder;
-        TopicRecord topicRecord = topicRecords.get(position);
+        topicRecord = topicRecords.get(position);
         // 绑定数据
         trViewHolder.tv_record_number.setText(topicRecord.getNumber() + "");
         trViewHolder.tv_record_name.setText(topicRecord.getName());
@@ -70,6 +75,14 @@ public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.View
         trViewHolder.tv_record_time.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(topicRecord.getTime()));
         String selectAnswer = topicRecord.getSelectAnswer();
         trViewHolder.tv_record_select_answer.setText(selectAnswer);
+
+        // 设置item点击监听
+        trViewHolder.ll_item.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onRVItemClickListener.onRVItemClick(topicRecord);
+            }
+        });
 
         // 错误答案
         rightAnswer = rightAnswer.substring(0, 1);
@@ -101,6 +114,22 @@ public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     /**
+     * 自定义item点击事件接口
+     */
+    public interface OnRVItemClickListener {
+        // 点击item方法
+        void onRVItemClick(TopicRecord topicRecord);
+    }
+
+    /**
+     * 初始化item事件点击对象-由子类来实现接口
+     * @param onRVItemClickListener
+     */
+    public void setOnRVItemClickListener(OnRVItemClickListener onRVItemClickListener) {
+        this.onRVItemClickListener = onRVItemClickListener;
+    }
+
+    /**
      * 自定义实现RecyclerView.ViewHolderr
      */
     public static class TRViewHolder extends RecyclerView.ViewHolder {
@@ -109,8 +138,10 @@ public class TopicRecordRVAdapter extends RecyclerView.Adapter<RecyclerView.View
         public TextView tv_record_right_answer;
         public TextView tv_record_time;
         public TextView tv_record_select_answer;
+        public LinearLayout ll_item;
         public TRViewHolder(View itemView) {
             super(itemView);
+            this.ll_item = (LinearLayout) itemView.findViewById(R.id.ll_item);
             this.tv_record_number = (TextView) itemView.findViewById(R.id.tv_record_number);
             this.tv_record_name = (TextView) itemView.findViewById(R.id.tv_record_name);
             this.tv_record_right_answer = (TextView) itemView.findViewById(R.id.tv_record_right_answer);
