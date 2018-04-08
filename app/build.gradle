@@ -1,20 +1,115 @@
 apply plugin: 'com.android.application'
+apply from: "$rootDir/config.gradle"
+
+// 获取git提交次数
+static def getRevisionNumber() {
+    Process process = "git rev-list --count HEAD".execute()
+    process.waitFor()
+    return process.getText().toInteger()
+}
+
+// 获取提交记录后7位eg:e25e84e
+static def getRevisionDescription() {
+    String desc = "git describe --always".execute().getText().trim()
+    return (desc == null || desc.size() == 0) ? new Date().format("yyMMdd") : desc.substring(desc.size() - 7)
+}
+
+// 获取version code
+static def getVersionCode(boolean isDebug) {
+    if (isDebug) {
+        return Integer.parseInt(new Date().format("yyMMddHHmm"))
+    }
+    return getRevisionNumber()
+}
+
+// 获取version name
+def getVersionName(boolean isDebug) {
+    String version = appConfig.appmajor + '.' + appConfig.appminor + '.' + getRevisionNumber()
+    String today = new Date().format("yyMMdd")
+    String time = new Date().format("HHmmss")
+    if (isDebug) {
+        return version + ".$today.$time." + getRevisionDescription()
+    }
+    return version + ".$today." + getRevisionDescription()
+}
 
 android {
     compileSdkVersion 25
     buildToolsVersion "27.0.3"
+    // 默认配置
     defaultConfig {
         applicationId "com.example.louiemain.pripathology"
         minSdkVersion 23
         targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        versionCode getVersionCode(true)
+        versionName getVersionName(true)
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        // 65535
+        multiDexEnabled true
     }
-    buildTypes {
+    // 签名配置 - 必须在编译类型配置之前
+    signingConfigs {
+        debug {
+
+        }
         release {
+            keyAlias appConfig.keyAlias
+            keyPassword appConfig.keyPassword
+            storeFile file(appConfig.storeFile)
+            storePassword appConfig.storePassword
+        }
+    }
+    // 编译类型
+    buildTypes {
+        debug {
+            buildConfigField 'boolean', 'IS_DEBUG', 'true'
+            debuggable true
             minifyEnabled false
+            signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            buildConfigField 'boolean', 'IS_DEBUG', 'false'
+            debuggable false
+            minifyEnabled false
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+    // 打包重命名
+    applicationVariants.all {
+        variant ->
+            variant.outputs.each {
+                output ->
+                    if (variant.buildType.name == 'release') {
+                        variant.mergedFlavor.versionCode = getVersionCode(false)
+                        variant.mergedFlavor.versionName = getVersionName(false)
+                        // release
+                        def apkName = "${appConfig.appname}_${variant.flavorName}_${buildType.name}_v${variant.versionName}.apk"
+                        output.outputFile = new File(output.outputFile.parent, apkName)
+                    } else {
+                        variant.mergedFlavor.versionCode = getVersionCode(true)
+                        variant.mergedFlavor.versionName = getVersionName(true)
+                        // debug
+                        def apkName = "${project.getName()}_${buildType.name}.apk"
+                        output.outputFile = new File(output.outputFile.parent, apkName)
+                    }
+            }
+    }
+    // 多渠道打包
+    productFlavors {
+        beta {
+            manifestPlaceholders = [
+                    APP_NAME: appConfig.betaName
+            ]
+        }
+        production {
+
         }
     }
 }

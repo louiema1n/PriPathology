@@ -3,12 +3,9 @@ package com.example.louiemain.pripathology.pager;/**
  * @author&date Created by louiemain on 2018/3/26 21:15
  */
 
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.support.v7.widget.CardView;
 import android.view.View;
@@ -17,19 +14,10 @@ import android.widget.Toast;
 import com.example.louiemain.pripathology.R;
 import com.example.louiemain.pripathology.activity.TopicRecordActivity;
 import com.example.louiemain.pripathology.base.BasePager;
-import com.example.louiemain.pripathology.dao.InitData;
 import com.example.louiemain.pripathology.dao.TopicRecordDao;
 import com.example.louiemain.pripathology.utils.HttpUtil;
 import com.example.louiemain.pripathology.utils.SharedPreferencesUtil;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.TimeZone;
 

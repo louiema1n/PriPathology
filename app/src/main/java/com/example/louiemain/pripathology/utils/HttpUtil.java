@@ -55,7 +55,8 @@ public class HttpUtil {
     private SharedPreferencesUtil sharedPreferencesUtil;
 
     private String httpResource = "";
-
+    private String Uri = "http://192.168.110.94:8085/";
+//    private String Uri = "http://192.168.1.103:8085/";
 
     public HttpUtil(Context context) {
         this.context = context;
@@ -88,8 +89,7 @@ public class HttpUtil {
 
                     try {
                         String encodedUp = URLEncoder.encode(up, "UTF-8");
-//                    url = new URL("http://192.168.1.103:8085/tr/add?json=" + encodedUp);
-                        url = new URL("http://192.168.1.103:8085/tr/add?json=" + encodedUp);
+                        url = new URL(Uri + "tr/add?json=" + encodedUp);
                         conn = (HttpURLConnection) url.openConnection();
                         conn.setRequestMethod("POST");
                         conn.setDoInput(true);
@@ -143,8 +143,7 @@ public class HttpUtil {
      * 下载答题记录
      */
     public void downloadTopicRecord() {
-//        getHttpResource("http://192.168.110.94:8085/tr/all", "topicRecord");
-        getHttpResource("http://192.168.1.103:8085/tr/all", "topicRecord");
+        getHttpResource(Uri + "tr/all", "topicRecord");
     }
 
     /**
@@ -235,8 +234,7 @@ public class HttpUtil {
      * @date Created on 2018/3/20 20:10
      */
     public void downloadTopic() {
-//        getHttpResource("http://192.168.110.94:8085/exam/all", "topic");
-        getHttpResource("http://192.168.1.103:8085/exam/all", "topic");
+        getHttpResource(Uri + "exam/all", "topic");
     }
 
     private Handler handler = new Handler() {

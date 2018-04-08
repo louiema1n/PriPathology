@@ -1,0 +1,15 @@
+ext.versions = [
+        // 本地仓库版本
+]
+ext.appConfig = [
+        // 大版本
+        appmajor: 1,
+        // 小版本
+        appminor: 1,
+        appname: 'pripathology',
+        keyAlias: 'pripathology',
+        keyPassword: 'pripathology',
+        storeFile: 'pripathology.jks',
+        storePassword: 'pripathology',
+        betaName: '@string/app_name'
+]

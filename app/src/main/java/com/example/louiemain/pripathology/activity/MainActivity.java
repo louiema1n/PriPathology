@@ -73,8 +73,11 @@ public class MainActivity extends BaseAppCompatActivity {
     /**
      * 获取fragment
      */
-    static class ReplaceFragment extends Fragment {
+    public static class ReplaceFragment extends Fragment {
         private BasePager basePager;
+
+        public ReplaceFragment() {
+        }
 
         public ReplaceFragment(BasePager basePager) {
             this.basePager = basePager;
