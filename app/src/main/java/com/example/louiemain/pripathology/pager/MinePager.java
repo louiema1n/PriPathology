@@ -143,7 +143,7 @@ public class MinePager extends BasePager {
                     context.startActivity(intent);
                     break;
                 case R.id.cv_update:
-                    new HttpUtil(context).downloadLatestApk();
+                    new HttpUtil(context).checkNewVersion();
                     break;
             }
         }
@@ -160,10 +160,7 @@ public class MinePager extends BasePager {
                     sendEmptyMessageDelayed(COUNT_DOWN, 1000 * 60);
                     break;
                 case CHECK_UPDATE:
-                    if (new HttpUtil(context).hasNewVersion) {
-                        // 显示
-                        iv_has_new_version.setVisibility(View.VISIBLE);
-                    }
+                    new HttpUtil(context).checkNewVersion(iv_has_new_version);
                     break;
             }
         }

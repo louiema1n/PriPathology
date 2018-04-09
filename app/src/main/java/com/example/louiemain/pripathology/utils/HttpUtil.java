@@ -11,6 +11,8 @@ import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 import com.example.louiemain.pripathology.R;
 import com.example.louiemain.pripathology.dao.InitData;
@@ -45,7 +47,6 @@ public class HttpUtil {
     private static final int DOWNLOAD_DATA_HALF = 50;
     private static final int DOWNLOAD_DATA_DONE = 100;
     private static final int SHOW_PROGRESS_DIALOG = 10;
-    private static final int TEST = 111;
 
     private HttpURLConnection conn = null;
     private URL url = null;
@@ -60,11 +61,10 @@ public class HttpUtil {
     private SharedPreferencesUtil sharedPreferencesUtil;
 
     private String httpResource = "";
-//    private String Uri = "http://192.168.110.94:8085";
+    //    private String Uri = "http://192.168.110.94:8085";
     private String Uri = "http://192.168.1.103:8085";
 
-    // 是否有新版本
-    public boolean hasNewVersion;
+    private ImageView iv_has_new_version;
 
     public HttpUtil(Context context) {
         this.context = context;
@@ -156,12 +156,20 @@ public class HttpUtil {
 
     /**
      * @param
-     * @Description: 获取最新版本apk信息
+     * @Description: 自动检测版本更新
      * @Author: louiemain
      * @Date: 2018-04-09 14:45
      * @return: void
      */
-    public void downloadLatestApk() {
+    public void checkNewVersion(ImageView iv_has_new_version) {
+        this.iv_has_new_version = iv_has_new_version;
+        getHttpResourceNoProgressDialog(Uri + "/upd/last", "latestApk");
+    }
+
+    /**
+     * 按钮点击检测更新
+     */
+    public void checkNewVersion() {
         getHttpResourceNoProgressDialog(Uri + "/upd/last", "latestApk");
     }
 
@@ -288,7 +296,7 @@ public class HttpUtil {
                         if (httpResource != null || httpResource != "") {
                             switch (tg) {
                                 case "latestApk":
-                                    handler.sendEmptyMessage(TEST);
+                                    updateManager();
                                     break;
                             }
                         }
@@ -307,7 +315,6 @@ public class HttpUtil {
                     // 关闭连接
                     conn.disconnect();
                 }
-
             }
         }.start();
     }
@@ -324,50 +331,60 @@ public class HttpUtil {
     }
 
     /**
-     * @param result
      * @Description: 更新管理
      * @Author: louiemain
      * @Date: 2018-04-09 14:56
      * @return: void
      */
-    public void updateManager(String result) {
-        try {
-            // 获取jsonObject
-            final JSONObject jsonObject = new JSONObject(result);
-            int serverVersion = jsonObject.optInt("serverVersion");
-            if (serverVersion > Integer.parseInt(APKUtil.getVersionCode(context))) {
-                // 当前版本较低，需要更新。
-                hasNewVersion = true;
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(context)
-                        .setCancelable(false)
-                        .setTitle("更新")
-                        .setMessage("检测到新版本应用，是否立即更新？")
-                        .setPositiveButton("立即更新", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                // 更新
+    public void updateManager() {
+        if (httpResource != null) {
 
-                                FileUtil.appInnerDownLoder(context,
-                                        Uri + jsonObject.optString("updateurl"),
-                                        jsonObject.optString("appname"));
-                            }
-                        });
-                if (!jsonObject.getBoolean("lastForce")) {
-                    // 强制更新
-                    alertDialog.setNegativeButton("暂不更新", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                        // 无需处理
+            try {
+                // 获取jsonObject
+                final JSONObject jsonObject = new JSONObject(httpResource);
+                int serverVersion = jsonObject.optInt("serverVersion");
+                if (serverVersion > Integer.parseInt(APKUtil.getVersionCode(context))) {
+                    // 当前版本较低，需要更新。
+                    if (iv_has_new_version != null) {
+                        iv_has_new_version.setVisibility(View.VISIBLE);
+                    } else {
+                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context)
+                                .setCancelable(false)
+                                .setTitle("更新")
+                                .setMessage("检测到新版本应用，是否立即更新？")
+                                .setPositiveButton("立即更新", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        // 更新
+
+                                        FileUtil.appInnerDownLoder(context,
+                                                Uri + jsonObject.optString("updateurl"),
+                                                jsonObject.optString("appname"));
+                                    }
+                                });
+                        if (!jsonObject.getBoolean("lastForce")) {
+                            // 强制更新
+                            alertDialog.setNegativeButton("暂不更新", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    // 无需处理
+                                }
+                            });
                         }
-                    });
+                        alertDialog.create().show();
+                    }
+                } else {
+                    if (iv_has_new_version != null) {
+
+                    } else {
+                        Toast.makeText(context, "当前已是最新版本", Toast.LENGTH_SHORT).show();
+                    }
                 }
-                alertDialog.create().show();
-            } else {
-                Toast.makeText(context, "当前已是最新版本", Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
+
     }
 
     private Handler handler = new Handler() {
@@ -428,9 +445,6 @@ public class HttpUtil {
                     progressDialog.setMessage(context.getString(R.string.download_data));
                     progressDialog.show();
                     break;
-                case TEST:
-                    updateManager(httpResource);
-                    break;
             }
         }
     };
@@ -462,12 +476,5 @@ public class HttpUtil {
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 
         return progressDialog;
-    }
-
-    private Dialog getDialog(boolean lastForce) {
-        Dialog dialog = new Dialog(context);
-        // 是否可以取消
-        dialog.setCancelable(lastForce);
-        return dialog;
     }
 }
