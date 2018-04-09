@@ -138,7 +138,7 @@ public class MinePager extends BasePager {
                     context.startActivity(intent);
                     break;
                 case R.id.cv_update:
-                    Toast.makeText(context, "当前版本" + APKUtil.getVersionCode(context), Toast.LENGTH_SHORT).show();
+                    new HttpUtil(context).downloadLatestApk();
                     break;
             }
         }

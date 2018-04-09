@@ -1,9 +1,12 @@
 package com.example.louiemain.pripathology.activity;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -52,6 +55,10 @@ public class MainActivity extends BaseAppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // 动态授权
+        grantExternalRW();
+
 //        setContentView();
         iniData();
         iniView();
@@ -164,6 +171,24 @@ public class MainActivity extends BaseAppCompatActivity {
         @Override
         public void onPageScrollStateChanged(int state) {
 
+        }
+    }
+
+    /**
+     * @description 动态获取外部存储权限
+     * Android 6.0以上权限问题
+     * @author louiemain
+     * @date Created on 2018/3/13 23:48
+     * @param
+     * @return void
+     */
+    public void grantExternalRW() {
+        // 是否有被动态授权
+        if (this.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // 没有，动态申请权限
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            }, 1);
         }
     }
 

@@ -3,6 +3,8 @@ package com.example.louiemain.pripathology.utils;/**
  * @author&date Created by louiemain on 2018/4/1 12:04
  */
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,6 +15,8 @@ import android.widget.Toast;
 import com.example.louiemain.pripathology.R;
 import com.example.louiemain.pripathology.dao.InitData;
 import com.example.louiemain.pripathology.dao.TopicRecordDao;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -41,6 +45,7 @@ public class HttpUtil {
     private static final int DOWNLOAD_DATA_HALF = 50;
     private static final int DOWNLOAD_DATA_DONE = 100;
     private static final int SHOW_PROGRESS_DIALOG = 10;
+    private static final int TEST = 111;
 
     private HttpURLConnection conn = null;
     private URL url = null;
@@ -55,8 +60,8 @@ public class HttpUtil {
     private SharedPreferencesUtil sharedPreferencesUtil;
 
     private String httpResource = "";
-    private String Uri = "http://192.168.110.94:8085/";
-//    private String Uri = "http://192.168.1.103:8085/";
+    private String Uri = "http://192.168.110.94:8085";
+//    private String Uri = "http://192.168.1.103:8085";
 
     public HttpUtil(Context context) {
         this.context = context;
@@ -89,7 +94,7 @@ public class HttpUtil {
 
                     try {
                         String encodedUp = URLEncoder.encode(up, "UTF-8");
-                        url = new URL(Uri + "tr/add?json=" + encodedUp);
+                        url = new URL(Uri + "/tr/add?json=" + encodedUp);
                         conn = (HttpURLConnection) url.openConnection();
                         conn.setRequestMethod("POST");
                         conn.setDoInput(true);
@@ -143,11 +148,23 @@ public class HttpUtil {
      * 下载答题记录
      */
     public void downloadTopicRecord() {
-        getHttpResource(Uri + "tr/all", "topicRecord");
+        getHttpResource(Uri + "/tr/all", "topicRecord");
+    }
+
+    /**
+     * @param
+     * @Description: 获取最新版本apk信息
+     * @Author: louiemain
+     * @Date: 2018-04-09 14:45
+     * @return: void
+     */
+    public void downloadLatestApk() {
+        getHttpResourceNoProgressDialog(Uri + "/upd/last", "latestApk");
     }
 
     /**
      * 获取HttpResource
+     *
      * @param urlPath
      * @return
      */
@@ -188,22 +205,88 @@ public class HttpUtil {
                         is.close();
                         handler.sendEmptyMessage(DOWNLOAD_DATA_DONE);
                         if (httpResource != null || httpResource != "") {
-                            if (tg.equals("topic")) {
-                                // 2.insert into local database
-                                String s = new InitData(context).insetTopic(httpResource);
-                                if (s == null) {
-                                    handler.sendEmptyMessage(DOWN_TOPIC_FAILURE);
-                                } else {
-                                    handler.sendEmptyMessage(DOWN_TOPIC_SUCCESS);
-                                }
-                            } else {
-                                // 2.insert into local database
-                                responseContent = new TopicRecordDao(context).insertTopicRecord(httpResource);
-                                if (responseContent == null) {
-                                    handler.sendEmptyMessage(DOWN_TR_FAILURE);
-                                } else {
-                                    handler.sendEmptyMessage(DOWN_TR_SUCCESS);
-                                }
+                            switch (tg) {
+                                case "latestApk":
+                                    Toast.makeText(context, httpResource, Toast.LENGTH_SHORT).show();
+                                    break;
+                                case "topic":
+                                    // 2.insert into local database
+                                    String s = new InitData(context).insetTopic(httpResource);
+                                    if (s == null) {
+                                        handler.sendEmptyMessage(DOWN_TOPIC_FAILURE);
+                                    } else {
+                                        handler.sendEmptyMessage(DOWN_TOPIC_SUCCESS);
+                                    }
+                                    break;
+                                case "topicRecord":
+                                    // 2.insert into local database
+                                    responseContent = new TopicRecordDao(context).insertTopicRecord(httpResource);
+                                    if (responseContent == null) {
+                                        handler.sendEmptyMessage(DOWN_TR_FAILURE);
+                                    } else {
+                                        handler.sendEmptyMessage(DOWN_TR_SUCCESS);
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                } catch (SocketTimeoutException e) {
+                    // 超时处理
+                    handler.sendEmptyMessage(SOCKET_TIMEOUT);
+                    e.printStackTrace();
+                } catch (UnknownHostException e) {
+                    // 异常主机处理
+                    handler.sendEmptyMessage(LINK_NETWORK_FAIL);
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    // 关闭连接
+                    conn.disconnect();
+                }
+
+            }
+        }.start();
+    }
+
+    public void getHttpResourceNoProgressDialog(String urlPath, String target) {
+        final String up = urlPath;
+        final String tg = target;
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+
+                // 解决 Can't create handler inside thread that has not called Looper.prepare()
+                Looper.prepare();
+
+                // 1.download data from server
+                HttpURLConnection conn = null;
+                URL url = null;
+
+                try {
+                    url = new URL(up);
+                    conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setConnectTimeout(3000);
+                    conn.setReadTimeout(3000);
+
+                    String str = "";
+                    if (conn.getResponseCode() == 200) {
+                        // 连接成功
+                        InputStream is = conn.getInputStream();
+                        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                        while ((str = br.readLine()) != null) {
+                            // 还有数据
+                            httpResource += str;
+                        }
+                        br.close();
+                        is.close();
+                        if (httpResource != null || httpResource != "") {
+                            switch (tg) {
+                                case "latestApk":
+                                    handler.sendEmptyMessage(TEST);
+                                    break;
                             }
                         }
                     }
@@ -234,7 +317,53 @@ public class HttpUtil {
      * @date Created on 2018/3/20 20:10
      */
     public void downloadTopic() {
-        getHttpResource(Uri + "exam/all", "topic");
+        getHttpResource(Uri + "/exam/all", "topic");
+    }
+
+    /**
+     * @param result
+     * @Description: 更新管理
+     * @Author: louiemain
+     * @Date: 2018-04-09 14:56
+     * @return: void
+     */
+    public void updateManager(String result) {
+        try {
+            // 获取jsonObject
+            final JSONObject jsonObject = new JSONObject(result);
+            int serverVersion = jsonObject.optInt("serverVersion");
+            if (serverVersion > Integer.parseInt(APKUtil.getVersionCode(context))) {
+                // 当前版本较低，需要更新。
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(context)
+                        .setCancelable(false)
+                        .setTitle("更新")
+                        .setMessage("检测到新版本应用，是否立即更新？")
+                        .setPositiveButton("立即更新", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // 更新
+
+                                FileUtil.appInnerDownLoder(context,
+                                        Uri + jsonObject.optString("updateurl"),
+                                        jsonObject.optString("appname"));
+                            }
+                        });
+                if (!jsonObject.getBoolean("lastForce")) {
+                    // 强制更新
+                    alertDialog.setNegativeButton("暂不更新", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        // 无需处理
+                        }
+                    });
+                }
+                alertDialog.create().show();
+            } else {
+                Toast.makeText(context, "当前已是最新版本", Toast.LENGTH_SHORT).show();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private Handler handler = new Handler() {
@@ -295,6 +424,9 @@ public class HttpUtil {
                     progressDialog.setMessage(context.getString(R.string.download_data));
                     progressDialog.show();
                     break;
+                case TEST:
+                    updateManager(httpResource);
+                    break;
             }
         }
     };
@@ -326,5 +458,12 @@ public class HttpUtil {
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 
         return progressDialog;
+    }
+
+    private Dialog getDialog(boolean lastForce) {
+        Dialog dialog = new Dialog(context);
+        // 是否可以取消
+        dialog.setCancelable(lastForce);
+        return dialog;
     }
 }
