@@ -2,6 +2,8 @@ package com.example.louiemain.pripathology.utils;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
 
 import java.io.*;
@@ -39,8 +41,6 @@ public class FileUtil {
                 try {
                     File file = downloadFile(url, appName, progressDialog);
 
-                    sleep(3000);
-
                     // 安装文件
                     installApk(context, file);
                     progressDialog.dismiss();
@@ -59,6 +59,12 @@ public class FileUtil {
      * @param file
      */
     private static void installApk(Context context, File file) {
+        Uri uri = Uri.fromFile(file);
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setDataAndType(uri, "application/vnd.android.package-archive");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // 防止打不开应用
+        context.startActivity(intent);
     }
 
     /**
