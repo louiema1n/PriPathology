@@ -47,6 +47,7 @@ public class HttpUtil {
     private static final int DOWNLOAD_DATA_HALF = 50;
     private static final int DOWNLOAD_DATA_DONE = 100;
     private static final int SHOW_PROGRESS_DIALOG = 10;
+    private static final int UPDATE_APK = 111;
 
     private HttpURLConnection conn = null;
     private URL url = null;
@@ -163,14 +164,14 @@ public class HttpUtil {
      */
     public void checkNewVersion(ImageView iv_has_new_version) {
         this.iv_has_new_version = iv_has_new_version;
-        getHttpResourceNoProgressDialog(Uri + "/upd/last", "latestApk");
+        getHttpResourceNoProgressDialog(Uri + "/upd/last", "laUPDATE_APKApk");
     }
 
     /**
      * 按钮点击检测更新
      */
     public void checkNewVersion() {
-        getHttpResourceNoProgressDialog(Uri + "/upd/last", "latestApk");
+        getHttpResourceNoProgressDialog(Uri + "/upd/last", "laUPDATE_APKApk");
     }
 
     /**
@@ -217,7 +218,7 @@ public class HttpUtil {
                         handler.sendEmptyMessage(DOWNLOAD_DATA_DONE);
                         if (httpResource != null || httpResource != "") {
                             switch (tg) {
-                                case "latestApk":
+                                case "laUPDATE_APKApk":
                                     Toast.makeText(context, httpResource, Toast.LENGTH_SHORT).show();
                                     break;
                                 case "topic":
@@ -295,8 +296,8 @@ public class HttpUtil {
                         is.close();
                         if (httpResource != null || httpResource != "") {
                             switch (tg) {
-                                case "latestApk":
-                                    updateManager();
+                                case "laUPDATE_APKApk":
+                                    handler.sendEmptyMessage(UPDATE_APK);
                                     break;
                             }
                         }
@@ -444,6 +445,9 @@ public class HttpUtil {
                     progressDialog = getProgressDialog(100, context.getString(R.string.sync_database));
                     progressDialog.setMessage(context.getString(R.string.download_data));
                     progressDialog.show();
+                    break;
+                case UPDATE_APK:
+                    updateManager();
                     break;
             }
         }
