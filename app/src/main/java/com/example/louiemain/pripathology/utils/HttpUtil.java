@@ -60,8 +60,11 @@ public class HttpUtil {
     private SharedPreferencesUtil sharedPreferencesUtil;
 
     private String httpResource = "";
-    private String Uri = "http://192.168.110.94:8085";
-//    private String Uri = "http://192.168.1.103:8085";
+//    private String Uri = "http://192.168.110.94:8085";
+    private String Uri = "http://192.168.1.103:8085";
+
+    // 是否有新版本
+    public boolean hasNewVersion;
 
     public HttpUtil(Context context) {
         this.context = context;
@@ -334,6 +337,7 @@ public class HttpUtil {
             int serverVersion = jsonObject.optInt("serverVersion");
             if (serverVersion > Integer.parseInt(APKUtil.getVersionCode(context))) {
                 // 当前版本较低，需要更新。
+                hasNewVersion = true;
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(context)
                         .setCancelable(false)
                         .setTitle("更新")

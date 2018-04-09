@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.CardView;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.example.louiemain.pripathology.R;
@@ -32,6 +33,7 @@ import java.util.TimeZone;
 public class MinePager extends BasePager {
 
     private static final int COUNT_DOWN = 4;
+    private static final int CHECK_UPDATE = 1;
 
     private CardView cv_order_record;
     private CardView cv_random_record;
@@ -43,6 +45,7 @@ public class MinePager extends BasePager {
     private CardView cv_download_topic_record;
     private TextView tv_version_name;
     private CardView cv_update;
+    private ImageView iv_has_new_version;
 
     public MinePager(Context context) {
         super(context);
@@ -51,6 +54,7 @@ public class MinePager extends BasePager {
             public void run() {
                 super.run();
                 handler.sendEmptyMessage(COUNT_DOWN);
+                handler.sendEmptyMessage(CHECK_UPDATE);
             }
         }.start();
         sharedPreferencesUtil = new SharedPreferencesUtil(context);
@@ -66,6 +70,7 @@ public class MinePager extends BasePager {
         cv_upload_topic_record = (CardView) view.findViewById(R.id.cv_upload_topic_record);
         cv_download_topic_record = (CardView) view.findViewById(R.id.cv_download_topic_record);
         cv_update = (CardView) view.findViewById(R.id.cv_update);
+        iv_has_new_version = (ImageView) view.findViewById(R.id.iv_has_new_version);
 
         cv_upload_topic_record.setOnClickListener(new MyOnClickListener());
         cv_download_topic_record.setOnClickListener(new MyOnClickListener());
@@ -153,6 +158,12 @@ public class MinePager extends BasePager {
                     tv_count_down.setText("距离考试还有" + calcCountDown());
                     removeMessages(COUNT_DOWN);
                     sendEmptyMessageDelayed(COUNT_DOWN, 1000 * 60);
+                    break;
+                case CHECK_UPDATE:
+                    if (new HttpUtil(context).hasNewVersion) {
+                        // 显示
+                        iv_has_new_version.setVisibility(View.VISIBLE);
+                    }
                     break;
             }
         }
