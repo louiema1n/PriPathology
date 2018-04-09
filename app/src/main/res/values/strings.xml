@@ -18,4 +18,6 @@
     <string name="upload_topic_record">uploadTopicRecord</string>
     <string name="download_topic_record">downloadTopicRecord</string>
     <string name="view_topic_record">viewTopicRecord</string>
+    <string name="update">update</string>
+    <string name="current_version">currentVersion</string>
 </resources>

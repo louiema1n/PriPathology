@@ -42,6 +42,7 @@ public class MinePager extends BasePager {
     private CardView cv_upload_topic_record;
     private CardView cv_download_topic_record;
     private TextView tv_version_name;
+    private CardView cv_update;
 
     public MinePager(Context context) {
         super(context);
@@ -64,18 +65,20 @@ public class MinePager extends BasePager {
         cv_download_topic = (CardView) view.findViewById(R.id.cv_download_topic);
         cv_upload_topic_record = (CardView) view.findViewById(R.id.cv_upload_topic_record);
         cv_download_topic_record = (CardView) view.findViewById(R.id.cv_download_topic_record);
+        cv_update = (CardView) view.findViewById(R.id.cv_update);
 
         cv_upload_topic_record.setOnClickListener(new MyOnClickListener());
         cv_download_topic_record.setOnClickListener(new MyOnClickListener());
         cv_download_topic.setOnClickListener(new MyOnClickListener());
         cv_order_record.setOnClickListener(new MyOnClickListener());
         cv_random_record.setOnClickListener(new MyOnClickListener());
+        cv_update.setOnClickListener(new MyOnClickListener());
 
         tv_count_down = (TextView) view.findViewById(R.id.tv_count_down);
         tv_version_name = (TextView) view.findViewById(R.id.tv_version_name);
 
         // 初始化版本名称
-        tv_version_name.setText("当前版本 " + APKUtil.getVersionName(context));
+        tv_version_name.setText(APKUtil.getVersionName(context));
 
         return view;
     }
@@ -133,6 +136,9 @@ public class MinePager extends BasePager {
                 case R.id.cv_random_record:
                     intent.putExtra("tag", "random");
                     context.startActivity(intent);
+                    break;
+                case R.id.cv_update:
+                    Toast.makeText(context, "当前版本" + APKUtil.getVersionCode(context), Toast.LENGTH_SHORT).show();
                     break;
             }
         }

@@ -17,7 +17,8 @@ static def getRevisionDescription() {
 // 获取version code
 static def getVersionCode(boolean isDebug) {
     if (isDebug) {
-        return Integer.parseInt(new Date().format("yyMMddHHmm"))
+        return Integer.parseInt(new Date().format("yyMMddHH"))
+//        return Integer.parseInt(new Date().format("yyMMddHHmm"))
     }
     return getRevisionNumber()
 }
@@ -25,10 +26,11 @@ static def getVersionCode(boolean isDebug) {
 // 获取version name
 def getVersionName(boolean isDebug) {
     String version = appConfig.appmajor + '.' + appConfig.appminor + '.' + getRevisionNumber()
-    String today = new Date().format("yyMMdd")
-    String time = new Date().format("HHmmss")
+    String today = new Date().format("yyMMddHH")
+//    String time = new Date().format("HHmmss")
     if (isDebug) {
-        return version + ".$today.$time." + getRevisionDescription()
+        return version + ".debug"
+//        return version + ".$today.$time." + getRevisionDescription()
     }
     return version + ".$today." + getRevisionDescription()
 }

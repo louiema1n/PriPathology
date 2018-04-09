@@ -19,16 +19,16 @@ public class APKUtil {
      * @param context
      * @return: java.lang.String
      */
-//    public static String getVersionCode(Context context) {
-//        int versionCode = 0;
-//        try {
-//            versionCode = context.getPackageManager().
-//                    getPackageInfo(context.getPackageName(), 0).versionCode;
-//        } catch (PackageManager.NameNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//        return versionCode + "";
-//    }
+    public static String getVersionCode(Context context) {
+        int versionCode = 0;
+        try {
+            versionCode = context.getPackageManager().
+                    getPackageInfo(context.getPackageName(), 0).versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return versionCode + "";
+    }
 
     /** 
      * @Description: 获取当前apk versionName 

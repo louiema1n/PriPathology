@@ -6,7 +6,7 @@ ext.appConfig = [
         appmajor: 1,
         // 小版本
         appminor: 1,
-        appname: 'pripathology',
+        appname: 'PriPathology',
         keyAlias: 'pripathology',
         keyPassword: 'pripathology',
         storeFile: 'pripathology.jks',
