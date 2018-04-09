@@ -15,6 +15,7 @@ import com.example.louiemain.pripathology.R;
 import com.example.louiemain.pripathology.activity.TopicRecordActivity;
 import com.example.louiemain.pripathology.base.BasePager;
 import com.example.louiemain.pripathology.dao.TopicRecordDao;
+import com.example.louiemain.pripathology.utils.APKUtil;
 import com.example.louiemain.pripathology.utils.HttpUtil;
 import com.example.louiemain.pripathology.utils.SharedPreferencesUtil;
 
@@ -40,6 +41,7 @@ public class MinePager extends BasePager {
     private CardView cv_download_topic;
     private CardView cv_upload_topic_record;
     private CardView cv_download_topic_record;
+    private TextView tv_version_name;
 
     public MinePager(Context context) {
         super(context);
@@ -70,6 +72,10 @@ public class MinePager extends BasePager {
         cv_random_record.setOnClickListener(new MyOnClickListener());
 
         tv_count_down = (TextView) view.findViewById(R.id.tv_count_down);
+        tv_version_name = (TextView) view.findViewById(R.id.tv_version_name);
+
+        // 初始化版本名称
+        tv_version_name.setText("当前版本 " + APKUtil.getVersionName(context));
 
         return view;
     }
