@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 apply from: "$rootDir/config.gradle"
 
-// 获取git提交次数
-static def getRevisionNumber() {
+// 获取git提交次数version code
+static def getVersionCode() {
     Process process = "git rev-list --count HEAD".execute()
     process.waitFor()
     return process.getText().toInteger()
@@ -14,20 +14,11 @@ static def getRevisionDescription() {
     return (desc == null || desc.size() == 0) ? new Date().format("yyMMdd") : desc.substring(desc.size() - 7)
 }
 
-// 获取version code
-static def getVersionCode(boolean isDebug) {
-    if (isDebug) {
-        return Integer.parseInt(new Date().format("yyMMddHH"))
-//        return Integer.parseInt(new Date().format("yyMMddHHmm"))
-    }
-    return getRevisionNumber()
-}
-
 // 获取version name
 def getVersionName(boolean isDebug) {
-    String version = appConfig.appmajor + '.' + appConfig.appminor + '.' + getRevisionNumber()
-    String today = new Date().format("yyMMddHH")
-//    String time = new Date().format("HHmmss")
+    String version = appConfig.appmajor + '.' + appConfig.appminor + '.' + getVersionCode()
+    String today = new Date().format("yyMMdd")
+    String time = new Date().format("HHmmss")
     if (isDebug) {
         return version + ".debug"
 //        return version + ".$today.$time." + getRevisionDescription()
@@ -43,7 +34,7 @@ android {
         applicationId "com.example.louiemain.pripathology"
         minSdkVersion 23
         targetSdkVersion 25
-        versionCode getVersionCode(true)
+        versionCode getVersionCode()
         versionName getVersionName(true)
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -89,13 +80,13 @@ android {
             variant.outputs.each {
                 output ->
                     if (variant.buildType.name == 'release') {
-                        variant.mergedFlavor.versionCode = getVersionCode(false)
+                        variant.mergedFlavor.versionCode = getVersionCode()
                         variant.mergedFlavor.versionName = getVersionName(false)
                         // release
                         def apkName = "${appConfig.appname}_${variant.flavorName}_${buildType.name}_v${variant.versionName}.apk"
                         output.outputFile = new File(output.outputFile.parent, apkName)
                     } else {
-                        variant.mergedFlavor.versionCode = getVersionCode(true)
+                        variant.mergedFlavor.versionCode = getVersionCode()
                         variant.mergedFlavor.versionName = getVersionName(true)
                         // debug
                         def apkName = "${appConfig.appname}_${buildType.name}.apk"
