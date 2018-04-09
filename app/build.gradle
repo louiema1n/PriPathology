@@ -96,7 +96,7 @@ android {
                         variant.mergedFlavor.versionCode = getVersionCode(true)
                         variant.mergedFlavor.versionName = getVersionName(true)
                         // debug
-                        def apkName = "${project.getName()}_${buildType.name}.apk"
+                        def apkName = "${appConfig.appname}_${buildType.name}.apk"
                         output.outputFile = new File(output.outputFile.parent, apkName)
                     }
             }
