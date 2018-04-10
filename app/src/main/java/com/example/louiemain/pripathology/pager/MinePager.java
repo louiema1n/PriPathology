@@ -18,7 +18,6 @@ import com.example.louiemain.pripathology.base.BasePager;
 import com.example.louiemain.pripathology.dao.TopicRecordDao;
 import com.example.louiemain.pripathology.utils.APKUtil;
 import com.example.louiemain.pripathology.utils.HttpUtil;
-import com.example.louiemain.pripathology.utils.NetworkUtil;
 import com.example.louiemain.pripathology.utils.SharedPreferencesUtil;
 
 import java.util.Calendar;
@@ -144,12 +143,9 @@ public class MinePager extends BasePager {
                     context.startActivity(intent);
                     break;
                 case R.id.cv_update:
-                    if (NetworkUtil.isWifi(context)) {
-                        new HttpUtil(context).checkNewVersion();
-                    } else {
-                        Toast.makeText(context, "当前为非WiFi环境", Toast.LENGTH_SHORT).show();
-                    }
+                    new HttpUtil(context).checkNewVersion();
                     break;
+
             }
         }
     }
@@ -165,9 +161,7 @@ public class MinePager extends BasePager {
                     sendEmptyMessageDelayed(COUNT_DOWN, 1000 * 60);
                     break;
                 case CHECK_UPDATE:
-                    if (NetworkUtil.isWifi(context)) {
-                        new HttpUtil(context).checkNewVersion(iv_has_new_version);
-                    }
+                    new HttpUtil(context).checkNewVersion(iv_has_new_version);
                     break;
             }
         }

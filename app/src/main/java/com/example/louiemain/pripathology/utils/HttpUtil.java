@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -56,7 +57,7 @@ public class HttpUtil {
     private String responseContent;
 
     private ProgressDialog progressDialog;
-    private Context context;
+    private static Context context;
 
     private SharedPreferencesUtil sharedPreferencesUtil;
 
@@ -67,14 +68,12 @@ public class HttpUtil {
 
     public HttpUtil(Context context) {
         this.context = context;
+
+        URLCheckUtil.saveLinkSuccessURL(context);
+
         sharedPreferencesUtil = new SharedPreferencesUtil(context);
-        if (NetworkUtil.isWifi(context)) {
-            // Wifi环境
-            if (NetworkUtil.getWifiSSID(context).equals("\"louiemain\"")) {
-                this.Uri = "http://192.168.110.94:8085";
-            } else {
-                this.Uri = "http://192.168.1.103:8085";
-            }
+        if (sharedPreferencesUtil.getLinkSuccessURL() != "") {
+            this.Uri = sharedPreferencesUtil.getLinkSuccessURL();
         } else {
             this.Uri = null;
         }
@@ -86,7 +85,7 @@ public class HttpUtil {
      * @param uploadData
      */
     public void uploadTopicRecord(String uploadData) {
-        if (NetworkUtil.isWifi(context)) {
+        if (Uri != null) {
             final String up = uploadData;
             if (up == null || up.equals("")) {
                 handler.sendEmptyMessage(EMPTY_DATA);
@@ -155,7 +154,7 @@ public class HttpUtil {
                 }.start();
             }
         } else {
-            Toast.makeText(context, "当前为非WiFi环境", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "无法连接到服务器，请联系服务器管理员", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -272,7 +271,7 @@ public class HttpUtil {
                 }
             }.start();
         } else {
-            Toast.makeText(context, "当前为非WiFi环境", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "无法连接到服务器，请联系服务器管理员", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -337,7 +336,7 @@ public class HttpUtil {
 
             }.start();
         } else {
-            Toast.makeText(context, "当前为非WiFi环境", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "无法连接到服务器，请联系服务器管理员", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -373,7 +372,7 @@ public class HttpUtil {
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context)
                                 .setCancelable(false)
                                 .setTitle("更新")
-                                .setMessage("检测到新版本应用，是否立即更新？\n\r更新详情：\n" + jsonObject.optString("upgradeinfo"))
+                                .setMessage("检测到新版本应用，是否立即更新？\n\n\n\n更新详情：\n" + jsonObject.optString("upgradeinfo"))
                                 .setPositiveButton("立即更新", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
