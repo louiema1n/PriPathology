@@ -87,73 +87,76 @@ public class HttpUtil {
      * @param uploadData
      */
     public void uploadTopicRecord(String uploadData) {
+        if (NetworkUtil.isWifi(context)) {
+            final String up = uploadData;
+            if (up == null || up.equals("")) {
+                handler.sendEmptyMessage(EMPTY_DATA);
+            } else {
 
-        final String up = uploadData;
-        if (up == null || up.equals("")) {
-            handler.sendEmptyMessage(EMPTY_DATA);
-        } else {
+                // 获取进度条
+                progressDialog = getProgressDialog(100, context.getString(R.string.upload_topic_record));
+                progressDialog.show();
 
-            // 获取进度条
-            progressDialog = getProgressDialog(100, context.getString(R.string.upload_topic_record));
-            progressDialog.show();
+                new Thread() {
+                    @Override
+                    public void run() {
+                        super.run();
 
-            new Thread() {
-                @Override
-                public void run() {
-                    super.run();
+                        // 解决 Can't create handler inside thread that has not called Looper.prepare()
+                        Looper.prepare();
 
-                    // 解决 Can't create handler inside thread that has not called Looper.prepare()
-                    Looper.prepare();
+                        try {
+                            String encodedUp = URLEncoder.encode(up, "UTF-8");
+                            url = new URL(Uri + "/tr/add?json=" + encodedUp);
+                            conn = (HttpURLConnection) url.openConnection();
+                            conn.setRequestMethod("POST");
+                            conn.setDoInput(true);
+                            conn.setDoOutput(true);
+                            conn.setUseCaches(false);
+                            // 设置文件类型
+                            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                            conn.setConnectTimeout(3000);
+                            conn.setReadTimeout(3000);
 
-                    try {
-                        String encodedUp = URLEncoder.encode(up, "UTF-8");
-                        url = new URL(Uri + "/tr/add?json=" + encodedUp);
-                        conn = (HttpURLConnection) url.openConnection();
-                        conn.setRequestMethod("POST");
-                        conn.setDoInput(true);
-                        conn.setDoOutput(true);
-                        conn.setUseCaches(false);
-                        // 设置文件类型
-                        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                        conn.setConnectTimeout(3000);
-                        conn.setReadTimeout(3000);
+                            if (conn.getResponseCode() == 200) {
+                                // 连接成功
+                                InputStream is = conn.getInputStream();
+                                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                                String str = null;
+                                while ((str = br.readLine()) != null) {
+                                    // 还有数据
+                                    result += str;
+                                }
+                                br.close();
+                                is.close();
 
-                        if (conn.getResponseCode() == 200) {
-                            // 连接成功
-                            InputStream is = conn.getInputStream();
-                            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                            String str = null;
-                            while ((str = br.readLine()) != null) {
-                                // 还有数据
-                                result += str;
+                                if (result != null) {
+                                    handler.sendEmptyMessage(UPLOAD_TR_SUCCESS);
+                                } else {
+                                    handler.sendEmptyMessage(UPLOAD_TR_FAILURE);
+                                }
                             }
-                            br.close();
-                            is.close();
-
-                            if (result != null) {
-                                handler.sendEmptyMessage(UPLOAD_TR_SUCCESS);
-                            } else {
-                                handler.sendEmptyMessage(UPLOAD_TR_FAILURE);
-                            }
+                        } catch (SocketTimeoutException e) {
+                            // 超时处理
+                            handler.sendEmptyMessage(SOCKET_TIMEOUT);
+                            e.printStackTrace();
+                        } catch (UnknownHostException e) {
+                            // 异常主机处理
+                            handler.sendEmptyMessage(LINK_NETWORK_FAIL);
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } finally {
+                            // 关闭连接
+                            conn.disconnect();
                         }
-                    } catch (SocketTimeoutException e) {
-                        // 超时处理
-                        handler.sendEmptyMessage(SOCKET_TIMEOUT);
-                        e.printStackTrace();
-                    } catch (UnknownHostException e) {
-                        // 异常主机处理
-                        handler.sendEmptyMessage(LINK_NETWORK_FAIL);
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        // 关闭连接
-                        conn.disconnect();
+
                     }
 
-                }
-
-            }.start();
+                }.start();
+            }
+        } else {
+            Toast.makeText(context, "当前为非WiFi环境", Toast.LENGTH_SHORT).show();
         }
     }
 
