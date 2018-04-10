@@ -395,39 +395,55 @@ public class HttpUtil {
             switch (msg.what) {
                 case DOWN_TOPIC_SUCCESS:
                     progressDialog.setProgress(100);
-                    progressDialog.dismiss();
+                    if (progressDialog != null) {
+                        progressDialog.dismiss();
+                    }
                     Toast.makeText(context, "成功同步" + new SharedPreferencesUtil(context).getSyncDataState() + "条题目数据。", Toast.LENGTH_SHORT).show();
                     break;
                 case DOWN_TOPIC_FAILURE:
                     Toast.makeText(context, "下载题目数据失败，请重试。", Toast.LENGTH_SHORT).show();
-                    progressDialog.dismiss();
+                    if (progressDialog != null) {
+                        progressDialog.dismiss();
+                    }
                     break;
                 case DOWN_TR_FAILURE:
                     Toast.makeText(context, "更新答题记录失败！", Toast.LENGTH_SHORT).show();
-                    progressDialog.dismiss();
+                    if (progressDialog != null) {
+                        progressDialog.dismiss();
+                    }
                     break;
                 case DOWN_TR_SUCCESS:
                     Toast.makeText(context, responseContent, Toast.LENGTH_SHORT).show();
-                    progressDialog.dismiss();
+                    if (progressDialog != null) {
+                        progressDialog.dismiss();
+                    }
                     sharedPreferencesUtil.writeUploadedMaxId(new TopicRecordDao(context).getMaxSelectedId(1));
                     break;
                 case UPLOAD_TR_SUCCESS:
                     progressDialog.setProgress(100);
-                    progressDialog.dismiss();
+                    if (progressDialog != null) {
+                        progressDialog.dismiss();
+                    }
                     Toast.makeText(context, "成功上传" + result + "条答题记录。", Toast.LENGTH_SHORT).show();
                     sharedPreferencesUtil.writeUploadedMaxId(new TopicRecordDao(context).getMaxSelectedId(1));
                     break;
                 case UPLOAD_TR_FAILURE:
                     Toast.makeText(context, "上传数据失败！", Toast.LENGTH_SHORT).show();
-                    progressDialog.dismiss();
+                    if (progressDialog != null) {
+                        progressDialog.dismiss();
+                    }
                     break;
                 case LINK_NETWORK_FAIL:
                     Toast.makeText(context, "连接服务器失败，请稍后重试。", Toast.LENGTH_SHORT).show();
-                    progressDialog.dismiss();
+                    if (progressDialog != null) {
+                        progressDialog.dismiss();
+                    }
                     break;
                 case SOCKET_TIMEOUT:
                     Toast.makeText(context, "服务器连接超时，请稍后重试。", Toast.LENGTH_SHORT).show();
-                    progressDialog.dismiss();
+                    if (progressDialog != null) {
+                        progressDialog.dismiss();
+                    }
                     break;
                 case EMPTY_DATA:
                     Toast.makeText(context, "未发现需要上传的答题记录。", Toast.LENGTH_SHORT).show();

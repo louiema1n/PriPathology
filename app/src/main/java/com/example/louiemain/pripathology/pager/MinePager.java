@@ -165,7 +165,9 @@ public class MinePager extends BasePager {
                     sendEmptyMessageDelayed(COUNT_DOWN, 1000 * 60);
                     break;
                 case CHECK_UPDATE:
-                    new HttpUtil(context).checkNewVersion(iv_has_new_version);
+                    if (NetworkUtil.isWifi(context)) {
+                        new HttpUtil(context).checkNewVersion(iv_has_new_version);
+                    }
                     break;
             }
         }
