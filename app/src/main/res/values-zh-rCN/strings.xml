@@ -20,4 +20,7 @@
     <string name="view_topic_record">查看答题记录</string>
     <string name="update">更新</string>
     <string name="current_version">当前版本</string>
+    <string name="select_topic_total">题目数量</string>
+    <string name="select_time_total">考试时间</string>
+    <string name="select">选择</string>
 </resources>

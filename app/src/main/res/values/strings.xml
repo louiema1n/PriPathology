@@ -20,4 +20,7 @@
     <string name="view_topic_record">viewTopicRecord</string>
     <string name="update">update</string>
     <string name="current_version">currentVersion</string>
+    <string name="select_topic_total">selectTopicTotal</string>
+    <string name="select_time_total">selectTimeTotal</string>
+    <string name="select">Select</string>
 </resources>
