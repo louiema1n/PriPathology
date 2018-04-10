@@ -71,7 +71,7 @@ public class HttpUtil {
         sharedPreferencesUtil = new SharedPreferencesUtil(context);
         if (NetworkUtil.isWifi(context)) {
             // Wifi环境
-            if (NetworkUtil.getWifiSSID(context).equals("louiemain")) {
+            if (NetworkUtil.getWifiSSID(context).equals("\"louiemain\"")) {
                 this.Uri = "http://192.168.110.94:8085";
             } else {
                 this.Uri = "http://192.168.1.103:8085";

@@ -32,7 +32,7 @@ public class NetworkUtil {
     }
 
     /** 
-     * @Description: 获取WiFi连接名称 
+     * @Description: 获取WiFi连接名称 eg:""louiemain"" - 注意双引号
      * @Author: louiemain 
      * @Date: 2018-04-10 11:01 
      * @param context 
