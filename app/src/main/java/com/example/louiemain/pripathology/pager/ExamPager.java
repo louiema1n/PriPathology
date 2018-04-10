@@ -6,12 +6,14 @@ package com.example.louiemain.pripathology.pager;/**
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.example.louiemain.pripathology.R;
+import com.example.louiemain.pripathology.activity.ExaminationActivity;
 import com.example.louiemain.pripathology.base.BasePager;
 
 /**
@@ -74,7 +76,9 @@ public class ExamPager extends BasePager {
      * 开始考试
      */
     private void startExam() {
-        Toast.makeText(context, "你选择了" + tv_selected_topic_total.getText() + "个题目和" + tv_selected_time_total.getText() + "分钟时间", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(context, "你选择了" + tv_selected_topic_total.getText() + "个题目和" + tv_selected_time_total.getText() + "分钟时间", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(context, ExaminationActivity.class);
+        context.startActivity(intent);
     }
 
     /**
