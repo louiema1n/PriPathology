@@ -4,6 +4,10 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Toast;
 import com.example.louiemain.pripathology.R;
 import com.example.louiemain.pripathology.activity.base.BaseAppCompatActivity;
 import com.example.louiemain.pripathology.adapter.ExamTopicRVAdapter;
@@ -56,5 +60,29 @@ public class ExaminationActivity extends BaseAppCompatActivity {
     private void initView() {
         tb_base_toolbar = (Toolbar) findViewById(R.id.tb_base_toolbar);
         rv_exam_container = (RecyclerView) findViewById(R.id.rv_exam_container);
+    }
+
+    /**
+     * 加载菜单资源
+     * @param menu
+     * @return
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_examination, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            default:
+                return super.onOptionsItemSelected(item);
+            case R.id.menu_topic_record:
+                Toast.makeText(this, "你点击了提交", Toast.LENGTH_SHORT).show();
+                return true;
+        }
+
     }
 }
