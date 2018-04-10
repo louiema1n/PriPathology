@@ -190,143 +190,153 @@ public class HttpUtil {
      * @return
      */
     public void getHttpResource(String urlPath, String target) {
-        handler.sendEmptyMessage(SHOW_PROGRESS_DIALOG);
-        final String up = urlPath;
-        final String tg = target;
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
+        if (Uri != null) {
+            handler.sendEmptyMessage(SHOW_PROGRESS_DIALOG);
+            final String up = urlPath;
+            final String tg = target;
+            new Thread() {
+                @Override
+                public void run() {
+                    super.run();
 
-                // 解决 Can't create handler inside thread that has not called Looper.prepare()
-                Looper.prepare();
+                    // 解决 Can't create handler inside thread that has not called Looper.prepare()
+                    Looper.prepare();
 
-                // 1.download data from server
-                HttpURLConnection conn = null;
-                URL url = null;
+                    // 1.download data from server
+                    HttpURLConnection conn = null;
+                    URL url = null;
 
-                try {
-                    url = new URL(up);
-                    conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("GET");
-                    conn.setConnectTimeout(3000);
-                    conn.setReadTimeout(3000);
+                    try {
+                        url = new URL(up);
+                        conn = (HttpURLConnection) url.openConnection();
+                        conn.setRequestMethod("GET");
+                        conn.setConnectTimeout(3000);
+                        conn.setReadTimeout(3000);
 
-                    handler.sendEmptyMessage(DOWNLOAD_DATA_HALF);
-                    String str = "";
-                    if (conn.getResponseCode() == 200) {
-                        // 连接成功
-                        InputStream is = conn.getInputStream();
-                        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                        while ((str = br.readLine()) != null) {
-                            // 还有数据
-                            httpResource += str;
-                        }
-                        br.close();
-                        is.close();
-                        handler.sendEmptyMessage(DOWNLOAD_DATA_DONE);
-                        if (httpResource != null || httpResource != "") {
-                            switch (tg) {
-                                case "laUPDATE_APKApk":
-                                    Toast.makeText(context, httpResource, Toast.LENGTH_SHORT).show();
-                                    break;
-                                case "topic":
-                                    // 2.insert into local database
-                                    String s = new InitData(context).insetTopic(httpResource);
-                                    if (s == null) {
-                                        handler.sendEmptyMessage(DOWN_TOPIC_FAILURE);
-                                    } else {
-                                        handler.sendEmptyMessage(DOWN_TOPIC_SUCCESS);
-                                    }
-                                    break;
-                                case "topicRecord":
-                                    // 2.insert into local database
-                                    responseContent = new TopicRecordDao(context).insertTopicRecord(httpResource);
-                                    if (responseContent == null) {
-                                        handler.sendEmptyMessage(DOWN_TR_FAILURE);
-                                    } else {
-                                        handler.sendEmptyMessage(DOWN_TR_SUCCESS);
-                                    }
-                                    break;
+                        handler.sendEmptyMessage(DOWNLOAD_DATA_HALF);
+                        String str = "";
+                        if (conn.getResponseCode() == 200) {
+                            // 连接成功
+                            InputStream is = conn.getInputStream();
+                            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                            while ((str = br.readLine()) != null) {
+                                // 还有数据
+                                httpResource += str;
+                            }
+                            br.close();
+                            is.close();
+                            handler.sendEmptyMessage(DOWNLOAD_DATA_DONE);
+                            if (httpResource != null || httpResource != "") {
+                                switch (tg) {
+                                    case "laUPDATE_APKApk":
+                                        Toast.makeText(context, httpResource, Toast.LENGTH_SHORT).show();
+                                        break;
+                                    case "topic":
+                                        // 2.insert into local database
+                                        String s = new InitData(context).insetTopic(httpResource);
+                                        if (s == null) {
+                                            handler.sendEmptyMessage(DOWN_TOPIC_FAILURE);
+                                        } else {
+                                            handler.sendEmptyMessage(DOWN_TOPIC_SUCCESS);
+                                        }
+                                        break;
+                                    case "topicRecord":
+                                        // 2.insert into local database
+                                        responseContent = new TopicRecordDao(context).insertTopicRecord(httpResource);
+                                        if (responseContent == null) {
+                                            handler.sendEmptyMessage(DOWN_TR_FAILURE);
+                                        } else {
+                                            handler.sendEmptyMessage(DOWN_TR_SUCCESS);
+                                        }
+                                        break;
+                                }
                             }
                         }
+                    } catch (SocketTimeoutException e) {
+                        // 超时处理
+                        handler.sendEmptyMessage(SOCKET_TIMEOUT);
+                        e.printStackTrace();
+                    } catch (UnknownHostException e) {
+                        // 异常主机处理
+                        handler.sendEmptyMessage(LINK_NETWORK_FAIL);
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        // 关闭连接
+                        conn.disconnect();
                     }
-                } catch (SocketTimeoutException e) {
-                    // 超时处理
-                    handler.sendEmptyMessage(SOCKET_TIMEOUT);
-                    e.printStackTrace();
-                } catch (UnknownHostException e) {
-                    // 异常主机处理
-                    handler.sendEmptyMessage(LINK_NETWORK_FAIL);
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    // 关闭连接
-                    conn.disconnect();
-                }
 
-            }
-        }.start();
+                }
+            }.start();
+        } else {
+            Toast.makeText(context, "当前为非WiFi环境", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void getHttpResourceNoProgressDialog(String urlPath, String target) {
-        final String up = urlPath;
-        final String tg = target;
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
+        if (Uri != null) {
+            final String up = urlPath;
+            final String tg = target;
+            new Thread() {
+                @Override
+                public void run() {
+                    super.run();
 
-                // 解决 Can't create handler inside thread that has not called Looper.prepare()
-                Looper.prepare();
+                    // 解决 Can't create handler inside thread that has not called Looper.prepare()
+                    Looper.prepare();
 
-                // 1.download data from server
-                HttpURLConnection conn = null;
-                URL url = null;
+                    // 1.download data from server
+                    HttpURLConnection conn = null;
+                    URL url = null;
 
-                try {
-                    url = new URL(up);
-                    conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("GET");
-                    conn.setConnectTimeout(3000);
-                    conn.setReadTimeout(3000);
+                    try {
+                        url = new URL(up);
+                        conn = (HttpURLConnection) url.openConnection();
+                        conn.setRequestMethod("GET");
+                        conn.setConnectTimeout(3000);
+                        conn.setReadTimeout(3000);
 
-                    String str = "";
-                    if (conn.getResponseCode() == 200) {
-                        // 连接成功
-                        InputStream is = conn.getInputStream();
-                        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                        while ((str = br.readLine()) != null) {
-                            // 还有数据
-                            httpResource += str;
-                        }
-                        br.close();
-                        is.close();
-                        if (httpResource != null || httpResource != "") {
-                            switch (tg) {
-                                case "laUPDATE_APKApk":
-                                    handler.sendEmptyMessage(UPDATE_APK);
-                                    break;
+                        String str = "";
+                        if (conn.getResponseCode() == 200) {
+                            // 连接成功
+                            InputStream is = conn.getInputStream();
+                            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                            while ((str = br.readLine()) != null) {
+                                // 还有数据
+                                httpResource += str;
+                            }
+                            br.close();
+                            is.close();
+                            if (httpResource != null || httpResource != "") {
+                                switch (tg) {
+                                    case "laUPDATE_APKApk":
+                                        handler.sendEmptyMessage(UPDATE_APK);
+                                        break;
+                                }
                             }
                         }
+                    } catch (SocketTimeoutException e) {
+                        // 超时处理
+                        handler.sendEmptyMessage(SOCKET_TIMEOUT);
+                        e.printStackTrace();
+                    } catch (UnknownHostException e) {
+                        // 异常主机处理
+                        handler.sendEmptyMessage(LINK_NETWORK_FAIL);
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        // 关闭连接
+                        conn.disconnect();
                     }
-                } catch (SocketTimeoutException e) {
-                    // 超时处理
-                    handler.sendEmptyMessage(SOCKET_TIMEOUT);
-                    e.printStackTrace();
-                } catch (UnknownHostException e) {
-                    // 异常主机处理
-                    handler.sendEmptyMessage(LINK_NETWORK_FAIL);
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    // 关闭连接
-                    conn.disconnect();
+
                 }
-            }
-        }.start();
+
+            }.start();
+        } else {
+            Toast.makeText(context, "当前为非WiFi环境", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
