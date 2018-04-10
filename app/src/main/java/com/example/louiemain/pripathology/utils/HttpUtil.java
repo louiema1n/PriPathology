@@ -373,7 +373,7 @@ public class HttpUtil {
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context)
                                 .setCancelable(false)
                                 .setTitle("更新")
-                                .setMessage("检测到新版本应用，是否立即更新？\n\n更新详情：\n" + jsonObject.optString("upgradeinfo"))
+                                .setMessage("检测到新版本应用，是否立即更新？\n\r更新详情：\n" + jsonObject.optString("upgradeinfo"))
                                 .setPositiveButton("立即更新", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
