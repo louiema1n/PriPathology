@@ -62,14 +62,23 @@ public class HttpUtil {
     private SharedPreferencesUtil sharedPreferencesUtil;
 
     private String httpResource = "";
-    //    private String Uri = "http://192.168.110.94:8085";
-    private String Uri = "http://192.168.1.103:8085";
+    private String Uri;
 
     private ImageView iv_has_new_version;
 
     public HttpUtil(Context context) {
         this.context = context;
         sharedPreferencesUtil = new SharedPreferencesUtil(context);
+        if (NetworkUtil.isWifi(context)) {
+            // Wifi环境
+            if (NetworkUtil.getWifiSSID(context).equals("louiemain")) {
+                this.Uri = "http://192.168.110.94:8085";
+            } else {
+                this.Uri = "http://192.168.1.103:8085";
+            }
+        } else {
+            this.Uri = null;
+        }
     }
 
     /**
