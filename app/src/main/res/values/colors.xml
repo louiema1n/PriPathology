@@ -4,7 +4,6 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorRbDisable">#a5a1a7</color>
-    <color name="colorPressBg">#e8e8e8</color>
     <color name="colorRbRight">@android:color/holo_blue_dark</color>
     <color name="colorGray">#11000000</color>
 </resources>
